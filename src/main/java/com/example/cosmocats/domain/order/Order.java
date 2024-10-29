@@ -1,4 +1,4 @@
-package com.example.cosmocats.domain;
+package com.example.cosmocats.domain.order;
 
 import java.util.List;
 
@@ -9,6 +9,6 @@ import lombok.Value;
 @Builder
 public class Order {
     long id;
-    List<Product> products;
+    List<OrderEntry> entries;
     float price;
 }

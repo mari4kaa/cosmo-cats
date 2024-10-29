@@ -1,4 +1,4 @@
-package com.example.dto;
+package com.example.cosmocats.dto;
 
 import lombok.Builder;
 import lombok.Value;
