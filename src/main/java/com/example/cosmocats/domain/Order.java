@@ -9,6 +9,6 @@ import lombok.Value;
 @Builder
 public class Order {
     long id;
-    List<Product> products; // TODO: maybe use []
+    List<Product> products;
     float price;
 }
