@@ -1,4 +1,4 @@
-package com.example.domain;
+package com.example.cosmocats.domain;
 
 import lombok.Builder;
 import lombok.Value;
