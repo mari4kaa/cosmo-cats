@@ -32,6 +32,7 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
 }
 
 tasks.named('test') {

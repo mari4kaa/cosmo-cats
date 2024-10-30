@@ -9,6 +9,7 @@ import lombok.Value;
 @Builder
 public class Order {
     long id;
-    List<OrderEntry> entries;
+    @Builder.Default
+    List<OrderEntry> entries = java.util.Collections.emptyList();
     float price;
 }
