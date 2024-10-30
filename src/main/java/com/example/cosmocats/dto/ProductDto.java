@@ -1,6 +1,8 @@
 package com.example.cosmocats.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -9,7 +11,11 @@ import lombok.Value;
 @Value
 @Builder
 public class ProductDto {
+    @NotNull(message = "Id is required")
+    @Min(value = 1, message = "Id must be integer bigger than 0")
     long id;
+    @NotNull(message = "Category id is required")
+    @Min(value = 1, message = "Category id must be integer bigger than 0")
     long categoryId;
 
     @NotBlank(message = "Product name is required")

@@ -1,6 +1,7 @@
 package com.example.cosmocats.dto.order;
 
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
@@ -9,7 +10,8 @@ import lombok.Value;
 @Value
 @Builder
 public class OrderEntryDto {
-    @NotNull(message = "Product ID is required")
+    @NotNull(message = "Id is required")
+    @Min(value = 1, message = "Id must be integer bigger than 0")
     long productId;
 
     @Positive(message = "Quantity must be greater than 0")
