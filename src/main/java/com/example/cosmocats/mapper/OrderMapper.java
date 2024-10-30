@@ -9,7 +9,6 @@ import org.mapstruct.factory.Mappers;
 import com.example.cosmocats.domain.order.Order;
 import com.example.cosmocats.domain.order.OrderEntry;
 import com.example.cosmocats.dto.order.OrderDto;
-import com.example.cosmocats.dto.order.OrderEntryDto;
 
 @Mapper(uses = {OrderEntryMapper.class})
 public interface OrderMapper {
