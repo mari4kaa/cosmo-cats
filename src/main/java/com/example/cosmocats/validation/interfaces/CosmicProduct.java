@@ -1,11 +1,17 @@
 package com.example.cosmocats.validation.interfaces;
-import com.example.cosmocats.validation.validators.ContainsWordValidator;
+
+import com.example.cosmocats.validation.validators.CosmicProductValidator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@Constraint(validatedBy = ContainsWordValidator.class)
-@ContainsWord(value = { "cosmic", "space", "intergalactic",  })
+@Constraint(validatedBy = CosmicProductValidator.class)
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
 public @interface CosmicProduct {
     String message() default "Field must contain one of \"cosmic words\"";
     Class<?>[] groups() default {};

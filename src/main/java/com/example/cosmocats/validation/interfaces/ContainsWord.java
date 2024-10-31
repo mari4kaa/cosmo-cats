@@ -14,6 +14,7 @@ import com.example.cosmocats.validation.validators.ContainsWordValidator;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ContainsWord {
     String[] value();
+    boolean sensitive() default false;
     String message() default "Field must contain one of the specified words";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
