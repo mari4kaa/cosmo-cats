@@ -42,12 +42,9 @@ public class ProductService {
         return Optional.ofNullable(products.get(id));
     }
 
-    public Product updateProduct(Long id, Product updatedProduct) {
+    public boolean updateProduct(Long id, Product updatedProduct) {
         try {
-            if (!products.containsKey(id)) {
-                throw new ProductUpdateException("Product not found with id: " + id);
-            }
-
+            boolean isCreated = !products.containsKey(id);
             Product product = Product.builder()
                     .id(id)
                     .category(updatedProduct.getCategory())
@@ -58,7 +55,8 @@ public class ProductService {
                     .build();
 
             products.put(id, product);
-            return product;
+
+           return isCreated; // Indicate whether an existing product was updated or created
         } catch (Exception e) {
             throw new ProductUpdateException("Failed to update product: " + e.getMessage());
         }

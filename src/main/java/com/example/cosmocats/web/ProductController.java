@@ -2,6 +2,7 @@ package com.example.cosmocats.web;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -52,13 +53,20 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDto> updateProduct(
-            @PathVariable Long id,
-            @Valid @RequestBody ProductDto productDto) {
-        Product product = productMapper.dtoToProduct(productDto);
-        Product updatedProduct = productService.updateProduct(id, product);
-        return ResponseEntity.ok(productMapper.productToDto(updatedProduct));
+public ResponseEntity<ProductDto> updateOrCreateProduct(
+        @PathVariable Long id,
+        @Valid @RequestBody ProductDto productDto) {
+
+    Product product = productMapper.dtoToProduct(productDto);
+    boolean isCreated = productService.updateProduct(id, product);
+    
+    // Determine the response status based on whether the product was created or updated
+    if (isCreated) {
+        return new ResponseEntity<>(productMapper.productToDto(product), HttpStatus.CREATED);
+    } else {
+        return new ResponseEntity<>(productMapper.productToDto(product), HttpStatus.OK);
     }
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
