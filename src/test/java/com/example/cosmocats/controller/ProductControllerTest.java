@@ -94,25 +94,27 @@ class ProductControllerTest {
     }
 
     @Test
-    void createProduct_withInvalidName_shouldReturn400() throws Exception {
-        ProductDto invalidProduct = ProductDto.builder()
-            .id(1L)
-            .categoryId(10L)
-            .name("")  // Invalid: name cannot be blank, must be between 2 and 100 characters and contain a cosmic word
-            .description("A cosmic product for stellar journeys.")
-            .origin("Terra")
-            .price(199.99f)
-            .build();
+void createProduct_withInvalidName_shouldReturn400() throws Exception {
+    ProductDto invalidProduct = ProductDto.builder()
+        .id(1L)
+        .categoryId(10L)
+        .name("")  // Invalid: name cannot be blank, must be between 2 and 100 characters and contain a cosmic word
+        .description("A cosmic product for stellar journeys.")
+        .origin("Terra")
+        .price(199.99f)
+        .build();
 
-        mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidProduct)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message").value("Validation failed: , name: Field must contain one of 'cosmic words', name: Product name must be between 2 and 100 characters, name: Product name is required"))
-                .andExpect(jsonPath("$.path").value("uri=/api/v1/products"));
-    }
+    mockMvc.perform(post("/api/v1/products")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(invalidProduct)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.message").exists())
+            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("name: Field must contain one of 'cosmic words'")))
+            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("name: Product name must be between 2 and 100 characters")))
+            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("name: Product name is required")))
+            .andExpect(jsonPath("$.path").value("uri=/api/v1/products"));
+}
 
     @Test
     void createProduct_withInvalidOrigin_shouldReturn400() throws Exception {
