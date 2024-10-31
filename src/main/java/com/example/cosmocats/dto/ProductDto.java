@@ -3,7 +3,6 @@ package com.example.cosmocats.dto;
 import com.example.cosmocats.validation.interfaces.CosmicOrigin;
 import com.example.cosmocats.validation.interfaces.CosmicProduct;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -15,10 +14,11 @@ import lombok.Value;
 @Builder
 public class ProductDto {
     @NotNull(message = "Id is required")
-    @Min(value = 1, message = "Id must be integer bigger than 0")
+    @PositiveOrZero(message = "ID cannot be negative")
     long id;
+
     @NotNull(message = "Category id is required")
-    @Min(value = 1, message = "Category id must be integer bigger than 0")
+    @PositiveOrZero(message = "Category ID cannot be negative")
     long categoryId;
 
     @NotBlank(message = "Product name is required")

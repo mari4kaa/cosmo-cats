@@ -2,7 +2,6 @@ package com.example.cosmocats.web;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,24 +13,25 @@ import com.example.cosmocats.mapper.ProductMapper;
 import com.example.cosmocats.service.ProductService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/products")
-@RequiredArgsConstructor
 @Validated
+@RequestMapping("/api/v1/products")
 public class ProductController {
 
     private final ProductService productService;
     private final ProductMapper productMapper = ProductMapper.INSTANCE;
 
+    public ProductController (ProductService productService) {
+        this.productService = productService;
+    }
+
     @PostMapping
-    public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
+    public ResponseEntity<ProductDto> createProduct(@RequestBody @Valid ProductDto productDto) {
         Product product = productMapper.dtoToProduct(productDto);
         Product createdProduct = productService.createProduct(product);
-        return new ResponseEntity<>(
-                productMapper.productToDto(createdProduct),
-                HttpStatus.CREATED
+        return ResponseEntity.ok(
+                productMapper.productToDto(createdProduct)
         );
     }
 
