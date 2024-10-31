@@ -8,6 +8,6 @@ public class CosmicProductValidator extends BaseContainsValidator<CosmicProduct>
     @Override
     public void initialize(CosmicProduct constraintAnnotation) {
         this.words = List.of("cosmic", "space", "intergalactic");
-        this.sensitive = false;
+        this.ignoreCase = true;
     }
 }

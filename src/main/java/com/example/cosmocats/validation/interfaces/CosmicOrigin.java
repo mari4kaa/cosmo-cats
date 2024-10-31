@@ -1,20 +1,18 @@
 package com.example.cosmocats.validation.interfaces;
 
-import com.example.cosmocats.validation.validators.ContainsWordValidator;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.RetentionPolicy;
+
+import com.example.cosmocats.validation.validators.CosmicOriginValidator;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
-@Constraint(validatedBy = ContainsWordValidator.class)
-@ContainsWord(value = {
-        // Solar System Planets
-        "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune",
-        // Dwarf Planets
-        "Pluto", "Ceres",
-        // Fictional and Extra-Solar Planets
-        "Terra", "Xandar", "Proxima", "Nibiru", "Erevos",
-        "Celestis", "Draconis", "Kepler-442b", "Vega", "Rigel"
-})
+@Constraint(validatedBy = CosmicOriginValidator.class)
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER })
+@Retention(RetentionPolicy.RUNTIME)
 public @interface CosmicOrigin  {
     String message() default "Origin must be some known planet";
     Class<?>[] groups() default {};

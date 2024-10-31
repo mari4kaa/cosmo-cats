@@ -8,6 +8,6 @@ public class ContainsWordValidator extends BaseContainsValidator<ContainsWord> {
     @Override
     public void initialize(ContainsWord constraintAnnotation) {
         this.words = Arrays.asList(constraintAnnotation.value());
-        this.sensitive = constraintAnnotation.sensitive();
+        this.ignoreCase = constraintAnnotation.ignoreCase();
     }
 }

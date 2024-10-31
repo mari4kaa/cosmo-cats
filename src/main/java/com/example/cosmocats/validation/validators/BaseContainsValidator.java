@@ -8,14 +8,14 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public abstract class BaseContainsValidator<T extends Annotation> implements ConstraintValidator<T, String> {
     protected List<String> words;
-    protected boolean sensitive;
+    protected boolean ignoreCase;
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isEmpty()) {
             return false;
         }
-        return words.stream().anyMatch(word -> sensitive ? sensitiveMatch(word, value) : insensitiveMatch(word, value));
+        return words.stream().anyMatch(word -> ignoreCase ? insensitiveMatch(word, value) : sensitiveMatch(word, value));
     }
 
     private boolean sensitiveMatch(String word, String value) {
