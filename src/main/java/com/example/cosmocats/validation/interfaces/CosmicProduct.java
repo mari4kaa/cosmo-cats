@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CosmicProduct {
-    String message() default "Field must contain one of \"cosmic words\"";
+    String message() default "Field must contain one of 'cosmic words'";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
