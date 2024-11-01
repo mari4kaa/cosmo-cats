@@ -5,6 +5,7 @@ import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
 import com.example.cosmocats.web.ProductController;
+import com.example.cosmocats.web.exception.ProductNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,9 +16,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
@@ -59,6 +66,37 @@ class ProductControllerTest {
                 .price(199.99f)
                 .build();
     }
+
+    @Test
+    void getProductById_withValidId_shouldReturnProduct() throws Exception {
+        Mockito.when(productService.getProductById(1L)).thenReturn(Optional.of(validProduct));
+
+        mockMvc.perform(get("/api/v1/products/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Cosmic Beam"))
+                .andExpect(jsonPath("$.origin").value("Terra"))
+                .andExpect(jsonPath("$.price").value(199.99));
+    }
+
+    @Test
+    void getProductById_withNonExistentId_shouldReturn404() throws Exception {
+        Mockito.when(productService.getProductById(anyLong())).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/v1/products/999"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("Product not found with id: 999"));
+    }
+
+    @Test
+    void getAllProducts_shouldReturnProductList() throws Exception {
+        Mockito.when(productService.getAllProducts()).thenReturn(List.of(validProduct));
+
+        mockMvc.perform(get("/api/v1/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].name").value("Cosmic Beam"));
+    }
     
     @Test
     void createProduct_withValidData_shouldReturn200() throws Exception {
@@ -94,7 +132,7 @@ class ProductControllerTest {
     }
 
     @Test
-void createProduct_withInvalidName_shouldReturn400() throws Exception {
+    void createProduct_withInvalidName_shouldReturn400() throws Exception {
     ProductDto invalidProduct = ProductDto.builder()
         .id(1L)
         .categoryId(10L)
@@ -198,6 +236,22 @@ void createProduct_withInvalidName_shouldReturn400() throws Exception {
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.message").value("Validation failed: , categoryId: Category ID cannot be negative"))
                 .andExpect(jsonPath("$.path").value("uri=/api/v1/products/1"));
+    }
+
+    @Test
+    void deleteProduct_withValidId_shouldReturn204() throws Exception {
+        Mockito.doNothing().when(productService).deleteProduct(1L);
+
+        mockMvc.perform(delete("/api/v1/products/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteProduct_withNonExistentId_shouldReturn204() throws Exception {
+        Mockito.doNothing().when(productService).deleteProduct(999L);
+
+        mockMvc.perform(delete("/api/v1/products/999"))
+                .andExpect(status().isNoContent());
     }
 }
 
