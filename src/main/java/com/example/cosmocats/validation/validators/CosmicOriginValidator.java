@@ -1,7 +1,9 @@
 package com.example.cosmocats.validation.validators;
 
+import java.util.Arrays;
 import java.util.List;
 import com.example.cosmocats.validation.interfaces.CosmicOrigin;
+import com.example.cosmocats.validation.validators.enums.CosmicOrigins;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -11,16 +13,9 @@ public class CosmicOriginValidator implements ConstraintValidator<CosmicOrigin, 
 
     @Override
     public void initialize(CosmicOrigin constraintAnnotation) {
-        this.validOrigins = List.of(
-                // Solar System Planets
-                "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune",
-                // Dwarf Planets
-                "Pluto", "Ceres",
-                // Fictional and Extra-Solar Planets
-                "Terra", "Xandar", "Proxima", "Nibiru", "Erevos",
-                "Celestis", "Draconis", "Kepler-442b", "Vega", "Rigel");
+        this.validOrigins = Arrays.asList(CosmicOrigins.getValues());
     }
-
+    
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         return validOrigins.stream().anyMatch(validOrigin -> validOrigin.equals(value));

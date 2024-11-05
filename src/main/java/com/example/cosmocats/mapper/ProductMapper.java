@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
 
-@Mapper(uses = CategoryMapper.class)
+@Mapper
 public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 

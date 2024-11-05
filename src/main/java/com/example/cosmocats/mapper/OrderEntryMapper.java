@@ -7,7 +7,7 @@ import org.mapstruct.factory.Mappers;
 import com.example.cosmocats.domain.order.OrderEntry;
 import com.example.cosmocats.dto.order.OrderEntryDto;
 
-@Mapper(uses = ProductMapper.class)
+@Mapper
 public interface OrderEntryMapper {
     OrderEntryMapper INSTANCE = Mappers.getMapper(OrderEntryMapper.class);
 

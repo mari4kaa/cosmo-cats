@@ -11,7 +11,7 @@ import com.example.cosmocats.domain.order.Order;
 import com.example.cosmocats.domain.order.OrderEntry;
 import com.example.cosmocats.dto.order.OrderDto;
 
-@Mapper(uses = {OrderEntryMapper.class})
+@Mapper
 public interface OrderMapper {
     OrderMapper INSTANCE = Mappers.getMapper(OrderMapper.class);
 
