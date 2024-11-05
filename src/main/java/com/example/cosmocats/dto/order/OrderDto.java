@@ -1,5 +1,7 @@
 package com.example.cosmocats.dto.order;
 
+import java.util.List;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -12,11 +14,11 @@ import lombok.Value;
 public class OrderDto {
     @NotNull(message = "Id is required")
     @Min(value = 1, message = "Id must be integer bigger than 0")
-    long id;
+    Long id;
 
     @NotEmpty(message = "Order must contain at least one entry")
-    long[] entryIds;
+    List<Long> entryIds;
 
     @PositiveOrZero(message = "Price cannot be negative")
-    float price;
+    Float price;
 }

@@ -12,7 +12,7 @@ import lombok.Value;
 public class CategoryDto {
     @NotNull(message = "Id is required")
     @Min(value = 1, message = "Id must be integer bigger than 0")
-    long id;
+    Long id;
 
     @NotBlank(message = "Category name is required")
     @Size(min = 2, max = 50, message = "Category name must be between 2 and 50 characters")

@@ -15,11 +15,11 @@ import lombok.Value;
 public class ProductDto {
     @NotNull(message = "Id is required")
     @PositiveOrZero(message = "ID cannot be negative")
-    long id;
+    Long id;
 
     @NotNull(message = "Category id is required")
     @PositiveOrZero(message = "Category ID cannot be negative")
-    long categoryId;
+    Long categoryId;
 
     @NotBlank(message = "Product name is required")
     @Size(min = 2, max = 100, message = "Product name must be between 2 and 100 characters")
@@ -35,5 +35,5 @@ public class ProductDto {
     String origin;
 
     @PositiveOrZero(message = "Price cannot be negative")
-    float price;
+    Float price;
 }

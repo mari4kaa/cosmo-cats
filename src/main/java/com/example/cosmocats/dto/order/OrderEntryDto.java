@@ -12,9 +12,9 @@ import lombok.Value;
 public class OrderEntryDto {
     @NotNull(message = "Id is required")
     @Min(value = 1, message = "Id must be integer bigger than 0")
-    long productId;
+    Long productId;
 
     @Positive(message = "Quantity must be greater than 0")
     @Max(value = 100, message = "Cannot order more than 100 items of a single product")
-    int quantity;
+    Integer quantity;
 }

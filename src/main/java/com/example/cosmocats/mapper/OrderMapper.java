@@ -1,6 +1,7 @@
 package com.example.cosmocats.mapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,19 +21,17 @@ public interface OrderMapper {
     @Mapping(target = "entries", source = "entryIds")
     Order dtoToOrder(OrderDto dto);
 
-    default long[] entriesToEntryIds(List<OrderEntry> entries) {
-        return entries.stream()
-                .mapToLong(entry -> entry.getProduct().getId())
-                .toArray();
+    default List<Long> entriesToEntryIds(List<OrderEntry> entries) {
+        return entries.stream().map((entry) -> entry.getProduct().getId()).collect(Collectors.toList());
     }
 
-    default List<OrderEntry> entryIdsToEntries(long[] entryIds) {
-        return java.util.Arrays.stream(entryIds)
-                .mapToObj(id -> OrderEntry.builder()
+    default List<OrderEntry> entryIdsToEntries(List<Long> entryIds) {
+        return entryIds.stream()
+                .map(id -> OrderEntry.builder()
                         .product(com.example.cosmocats.domain.Product.builder()
                                 .id(id)
                                 .build())
                         .build())
-                .toList();
+                .collect(Collectors.toList());
     }
 }
