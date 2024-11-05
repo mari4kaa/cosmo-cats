@@ -58,14 +58,9 @@ public class ProductController {
         @Valid @RequestBody ProductDto productDto) {
 
     Product product = productMapper.dtoToProduct(productDto);
-    boolean isCreated = productService.updateProduct(id, product);
+    Product updatedProduct = productService.updateProduct(id, product);
     
-    // Determine the response status based on whether the product was created or updated
-    if (isCreated) {
-        return new ResponseEntity<>(productMapper.productToDto(product), HttpStatus.CREATED);
-    } else {
-        return new ResponseEntity<>(productMapper.productToDto(product), HttpStatus.OK);
-    }
+    return new ResponseEntity<>(productMapper.productToDto(updatedProduct), HttpStatus.OK);
 }
 
     @DeleteMapping("/{id}")

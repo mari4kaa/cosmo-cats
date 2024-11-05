@@ -84,11 +84,10 @@ class ProductServiceTest {
     }
 
     @Test
-    void updateProduct_whenProductExists_shouldUpdateAndReturnFalse() {
-        Product createdProduct = productService.createProduct(testProduct);
-        
+    void updateProduct_whenProductExists_shouldUpdateAndReturnUpdatedProduct() {
+        Long id = 5L;
         Product updatedProduct = Product.builder()
-                .id(createdProduct.getId())
+                .id(id)
                 .category(null)
                 .name("Nebula Scratcher")
                 .description("A scratching post designed for cosmic comfort.")
@@ -96,32 +95,12 @@ class ProductServiceTest {
                 .price(59.99f)
                 .build();
         
-        boolean isCreated = productService.updateProduct(createdProduct.getId(), updatedProduct);
+        Product newProduct = productService.updateProduct(id, updatedProduct);
         
-        assertFalse(isCreated);
-        Optional<Product> retrievedProduct = productService.getProductById(createdProduct.getId());
-        assertTrue(retrievedProduct.isPresent());
-        assertEquals("Nebula Scratcher", retrievedProduct.get().getName());
-        assertEquals("Caturn", retrievedProduct.get().getOrigin());
-    }
-
-    @Test
-    void updateProduct_whenProductDoesNotExist_shouldCreateAndReturnTrue() {
-        Product newProduct = Product.builder()
-                .id(2L)
-                .category(null)
-                .name("Comet Kibble")
-                .description("A treat for interstellar cats on a journey through the stars.")
-                .origin("Andromeda Treat Center")
-                .price(9.99f)
-                .build();
-        
-        boolean isCreated = productService.updateProduct(2L, newProduct);
-        
-        assertTrue(isCreated);
-        Optional<Product> retrievedProduct = productService.getProductById(2L);
-        assertTrue(retrievedProduct.isPresent());
-        assertEquals("Comet Kibble", retrievedProduct.get().getName());
+        assertEquals(updatedProduct.getId(), newProduct.getId());
+        assertEquals(updatedProduct, newProduct);
+        assertEquals("Nebula Scratcher", newProduct.getName());
+        assertEquals("Caturn", newProduct.getOrigin());
     }
 
     @Test

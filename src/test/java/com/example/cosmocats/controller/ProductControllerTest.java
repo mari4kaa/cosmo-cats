@@ -112,22 +112,12 @@ class ProductControllerTest {
     }
 
     @Test
-    void updateOrCreateProduct_withValidUpdatedData_shouldReturn200() throws Exception {
-        Mockito.when(productService.updateProduct(Mockito.anyLong(), Mockito.any())).thenReturn(false); // Updated product
+    void updateProduct_withValidUpdatedData_shouldReturn200() throws Exception {
+        Mockito.when(productService.updateProduct(Mockito.anyLong(), Mockito.any())).thenReturn(validProduct); // Updated product
         mockMvc.perform(put("/api/v1/products/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validProductDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Cosmic Beam"));
-    }
-
-    @Test
-    void updateOrCreateProduct_withValidCreatedData_shouldReturn201() throws Exception {
-        Mockito.when(productService.updateProduct(Mockito.anyLong(), Mockito.any())).thenReturn(true); // Created product
-        mockMvc.perform(put("/api/v1/products/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validProductDto)))
-                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Cosmic Beam"));
     }
 
