@@ -97,7 +97,7 @@ class ProductControllerTest {
         mockMvc.perform(get("/api/v1/products/" + randUUID))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").value("Product not found with id: " + randUUID));
+                .andExpect(jsonPath("$.detail").value("Product not found with id: " + randUUID));
     }
 
     @Test
@@ -153,11 +153,11 @@ class ProductControllerTest {
                     .content(objectMapper.writeValueAsString(invalidProduct)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.status").value(400))
-            .andExpect(jsonPath("$.message").exists())
-            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("name: Field must contain one of 'cosmic words'")))
-            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("name: Product name must be between 2 and 100 characters")))
-            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("name: Product name is required")))
-            .andExpect(jsonPath("$.path").value("uri=/api/v1/products"));
+            .andExpect(jsonPath("$.detail").exists())
+            .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name: Field must contain one of 'cosmic words'")))
+            .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name: Product name must be between 2 and 100 characters")))
+            .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name: Product name is required")))
+            .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
 }
 
     @Test
@@ -177,9 +177,9 @@ class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message").value("Validation failed: , origin: Origin must be some known planet"))
-                .andExpect(jsonPath("$.path").value("uri=/api/v1/products"));
+                .andExpect(jsonPath("$.detail").exists())
+                .andExpect(jsonPath("$.detail").value("Validation failed: origin: Origin must be some known planet"))
+                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
     }
 
     @Test
@@ -199,9 +199,9 @@ class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message").value("Validation failed: , price: Price cannot be negative"))
-                .andExpect(jsonPath("$.path").value("uri=/api/v1/products"));
+                .andExpect(jsonPath("$.detail").exists())
+                .andExpect(jsonPath("$.detail").value("Validation failed: price: Price cannot be negative"))
+                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
     }
 
     @Test
@@ -221,9 +221,9 @@ class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message").value("Validation failed: , description: Description cannot exceed 500 characters"))
-                .andExpect(jsonPath("$.path").value("uri=/api/v1/products"));
+                .andExpect(jsonPath("$.detail").exists())
+                .andExpect(jsonPath("$.detail").value("Validation failed: description: Description cannot exceed 500 characters"))
+                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
     }
 
     @Test
@@ -243,9 +243,9 @@ class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message").value("Validation failed: , categoryId: Category id is required"))
-                .andExpect(jsonPath("$.path").value("uri=/api/v1/products/" + productUUID));
+                .andExpect(jsonPath("$.detail").exists())
+                .andExpect(jsonPath("$.detail").value("Validation failed: categoryId: Category id is required"))
+                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products/" + productUUID));
     }
 
     @Test
