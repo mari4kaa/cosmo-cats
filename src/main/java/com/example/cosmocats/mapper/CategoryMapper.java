@@ -8,7 +8,9 @@ import com.example.cosmocats.dto.CategoryDto;
 
 @Mapper
 public interface CategoryMapper {
-    CategoryMapper INSTANCE = Mappers.getMapper( CategoryMapper.class );
+    static CategoryMapper getInstance() {
+        return Mappers.getMapper(CategoryMapper.class);
+    }
 
     CategoryDto categoryToDto(Category category);
     Category dtoToCategory(CategoryDto dto);

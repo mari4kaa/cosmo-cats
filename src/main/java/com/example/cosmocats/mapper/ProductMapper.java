@@ -9,7 +9,9 @@ import com.example.cosmocats.dto.ProductDto;
 
 @Mapper
 public interface ProductMapper {
-    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
+    static ProductMapper getInstance() {
+        return Mappers.getMapper(ProductMapper.class);
+    }
 
     @Mapping(target = "categoryId", source = "category.id")
     ProductDto productToDto(Product product);

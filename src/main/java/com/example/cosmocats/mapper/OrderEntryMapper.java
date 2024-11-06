@@ -9,7 +9,9 @@ import com.example.cosmocats.dto.order.OrderEntryDto;
 
 @Mapper
 public interface OrderEntryMapper {
-    OrderEntryMapper INSTANCE = Mappers.getMapper(OrderEntryMapper.class);
+    static OrderEntryMapper getInstance() {
+        return Mappers.getMapper(OrderEntryMapper.class);
+    }
 
     @Mapping(target = "productId", source = "product.id")
     OrderEntryDto orderEntryToDto(OrderEntry entry);

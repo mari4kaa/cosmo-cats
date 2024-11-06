@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 public class ProductController {
 
     private final ProductService productService;
-    private final ProductMapper productMapper = ProductMapper.INSTANCE;
+    private final ProductMapper productMapper = ProductMapper.getInstance();
 
     public ProductController (ProductService productService) {
         this.productService = productService;
