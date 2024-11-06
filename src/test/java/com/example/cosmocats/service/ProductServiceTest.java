@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,7 +21,7 @@ class ProductServiceTest {
     void setUp() {
         productService = new ProductService();
         testProduct = Product.builder()
-                .id(1L)
+                .id(UUID.randomUUID())
                 .category(null)
                 .name("CatStronaut Helmet")
                 .description("A stellar helmet for adventurous cosmic cats.")
@@ -78,20 +79,20 @@ class ProductServiceTest {
 
     @Test
     void getProductById_whenProductDoesNotExist_shouldReturnEmptyOptional() {
-        Optional<Product> retrievedProduct = productService.getProductById(999L);
+        Optional<Product> retrievedProduct = productService.getProductById(UUID.randomUUID());
         
         assertTrue(retrievedProduct.isEmpty());
     }
 
     @Test
     void updateProduct_whenProductExists_shouldUpdateAndReturnUpdatedProduct() {
-        Long id = 5L;
+        UUID id = UUID.randomUUID();
         Product updatedProduct = Product.builder()
                 .id(id)
                 .category(null)
                 .name("Nebula Scratcher")
                 .description("A scratching post designed for cosmic comfort.")
-                .origin("Caturn")  // Cat-themed name based on Saturn
+                .origin("Caturn")
                 .price(59.99f)
                 .build();
         
@@ -105,7 +106,7 @@ class ProductServiceTest {
 
     @Test
     void updateProduct_withException_shouldThrowProductUpdateException() {
-        assertThrows(ProductUpdateException.class, () -> productService.updateProduct(1L, null));
+        assertThrows(ProductUpdateException.class, () -> productService.updateProduct(UUID.randomUUID(), null));
     }
 
     @Test
@@ -119,7 +120,7 @@ class ProductServiceTest {
 
     @Test
     void deleteProduct_whenProductDoesNotExist_shouldDoNothing() {
-        productService.deleteProduct(999L);
+        productService.deleteProduct(UUID.randomUUID());
         assertTrue(productService.getAllProducts().isEmpty());
     }
 }

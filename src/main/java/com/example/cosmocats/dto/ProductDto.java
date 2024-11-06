@@ -1,5 +1,7 @@
 package com.example.cosmocats.dto;
 
+import java.util.UUID;
+
 import com.example.cosmocats.validation.interfaces.CosmicOrigin;
 import com.example.cosmocats.validation.interfaces.CosmicProduct;
 
@@ -14,12 +16,10 @@ import lombok.Value;
 @Builder
 public class ProductDto {
     @NotNull(message = "Id is required")
-    @PositiveOrZero(message = "ID cannot be negative")
-    Long id;
+    UUID id;
 
     @NotNull(message = "Category id is required")
-    @PositiveOrZero(message = "Category ID cannot be negative")
-    Long categoryId;
+    UUID categoryId;
 
     @NotBlank(message = "Product name is required")
     @Size(min = 2, max = 100, message = "Product name must be between 2 and 100 characters")

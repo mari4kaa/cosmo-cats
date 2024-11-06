@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -14,13 +15,12 @@ import com.example.cosmocats.service.exception.ProductUpdateException;
 
 @Service
 public class ProductService {
-    private final Map<Long, Product> products = new HashMap<>();
-    private long nextId = 1;
+    private final Map<UUID, Product> products = new HashMap<>();
 
     public Product createProduct(Product product) {
         try {
             Product newProduct = Product.builder()
-                    .id(nextId++)
+                    .id(UUID.randomUUID())
                     .category(product.getCategory())
                     .name(product.getName())
                     .description(product.getDescription())
@@ -38,11 +38,11 @@ public class ProductService {
         return new ArrayList<>(products.values());
     }
 
-    public Optional<Product> getProductById(Long id) {
+    public Optional<Product> getProductById(UUID id) {
         return Optional.ofNullable(products.get(id));
     }
 
-    public Product updateProduct(Long id, Product updatedProduct) {
+    public Product updateProduct(UUID id, Product updatedProduct) {
         try {
             Product product = Product.builder()
                     .id(id)
@@ -61,7 +61,7 @@ public class ProductService {
         }
     }
 
-    public void deleteProduct(Long id) {
+    public void deleteProduct(UUID id) {
         products.remove(id);
     }
 }

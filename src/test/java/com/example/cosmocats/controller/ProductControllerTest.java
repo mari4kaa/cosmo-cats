@@ -5,7 +5,6 @@ import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
 import com.example.cosmocats.web.ProductController;
-import com.example.cosmocats.web.exception.ProductNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -25,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
@@ -41,15 +40,22 @@ class ProductControllerTest {
     private ProductDto validProductDto;
     private Product validProduct;
 
+    private UUID productUUID;
+    private UUID categoryUUID;
+
     @BeforeEach
     void setUp() {
+
+        productUUID = UUID.randomUUID();
+        categoryUUID = UUID.randomUUID();
+
         Category category = Category.builder()
-                .id(10L)
+                .id(categoryUUID)
                 .name("Galaxy Goods")
                 .build();
 
         validProductDto = ProductDto.builder()
-                .id(1L)
+                .id(productUUID)
                 .categoryId(category.getId())
                 .name("Cosmic Beam")
                 .description("A cosmic product for stellar journeys.")
@@ -58,7 +64,7 @@ class ProductControllerTest {
                 .build();
 
         validProduct = Product.builder()
-                .id(1L)
+                .id(productUUID)
                 .category(category)
                 .name("Cosmic Beam")
                 .description("A cosmic product for stellar journeys.")
@@ -69,9 +75,9 @@ class ProductControllerTest {
 
     @Test
     void getProductById_withValidId_shouldReturnProduct() throws Exception {
-        Mockito.when(productService.getProductById(1L)).thenReturn(Optional.of(validProduct));
+        Mockito.when(productService.getProductById(productUUID)).thenReturn(Optional.of(validProduct));
 
-        mockMvc.perform(get("/api/v1/products/1"))
+        mockMvc.perform(get("/api/v1/products/" + productUUID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Cosmic Beam"))
                 .andExpect(jsonPath("$.origin").value("Terra"))
@@ -80,9 +86,10 @@ class ProductControllerTest {
 
     @Test
     void getProductById_withNonExistentId_shouldReturn404() throws Exception {
-        Mockito.when(productService.getProductById(anyLong())).thenReturn(Optional.empty());
+        UUID randUUID = UUID.randomUUID();
+        Mockito.when(productService.getProductById(randUUID)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/products/999"))
+        mockMvc.perform(get("/api/v1/products/" + randUUID))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Product not found with id: 999"));
@@ -113,8 +120,8 @@ class ProductControllerTest {
 
     @Test
     void updateProduct_withValidUpdatedData_shouldReturn200() throws Exception {
-        Mockito.when(productService.updateProduct(Mockito.anyLong(), Mockito.any())).thenReturn(validProduct); // Updated product
-        mockMvc.perform(put("/api/v1/products/1")
+        Mockito.when(productService.updateProduct(UUID.randomUUID(), Mockito.any())).thenReturn(validProduct); // Updated product
+        mockMvc.perform(put("/api/v1/products/" + productUUID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validProductDto)))
                 .andExpect(status().isOk())
@@ -124,8 +131,8 @@ class ProductControllerTest {
     @Test
     void createProduct_withInvalidName_shouldReturn400() throws Exception {
     ProductDto invalidProduct = ProductDto.builder()
-        .id(1L)
-        .categoryId(10L)
+        .id(productUUID)
+        .categoryId(categoryUUID)
         .name("")  // Invalid: name cannot be blank, must be between 2 and 100 characters and contain a cosmic word
         .description("A cosmic product for stellar journeys.")
         .origin("Terra")
@@ -147,8 +154,8 @@ class ProductControllerTest {
     @Test
     void createProduct_withInvalidOrigin_shouldReturn400() throws Exception {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(1L)
-            .categoryId(10L)
+            .id(productUUID)
+            .categoryId(categoryUUID)
             .name("Intergalactic Jet")
             .description("A cosmic product for stellar journeys.")
             .origin("UnknownPlanet")  // Invalid: origin must be a known planet
@@ -168,8 +175,8 @@ class ProductControllerTest {
     @Test
     void createProduct_withNegativePrice_shouldReturn400() throws Exception {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(1L)
-            .categoryId(10L)
+            .id(productUUID)
+            .categoryId(categoryUUID)
             .name("Space Orb")
             .description("An interstellar item.")
             .origin("Terra")
@@ -189,8 +196,8 @@ class ProductControllerTest {
     @Test
     void createProduct_withTooLongDescription_shouldReturn400() throws Exception {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(1L)
-            .categoryId(10L)
+            .id(productUUID)
+            .categoryId(categoryUUID)
             .name("Intergalactic Shard")
             .description("S".repeat(501))  // Invalid: description cannot exceed 500 characters
             .origin("Terra")
@@ -210,15 +217,15 @@ class ProductControllerTest {
     @Test
     void updateOrCreateProduct_withInvalidCategoryId_shouldReturn400() throws Exception {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(1L)
-            .categoryId(-1L)  // Invalid: categoryId cannot be negative
+            .id(productUUID)
+            .categoryId(null)  // Invalid: categoryId cannot be null
             .name("Cosmic Yarn")
             .description("Perfect yarn for cosmo cats.")
             .origin("Terra")
             .price(120.0f)
             .build();
 
-        mockMvc.perform(put("/api/v1/products/1")
+        mockMvc.perform(put("/api/v1/products/" + productUUID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
@@ -230,17 +237,18 @@ class ProductControllerTest {
 
     @Test
     void deleteProduct_withValidId_shouldReturn204() throws Exception {
-        Mockito.doNothing().when(productService).deleteProduct(1L);
+        Mockito.doNothing().when(productService).deleteProduct(productUUID);
 
-        mockMvc.perform(delete("/api/v1/products/1"))
+        mockMvc.perform(delete("/api/v1/products/" + productUUID))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void deleteProduct_withNonExistentId_shouldReturn204() throws Exception {
-        Mockito.doNothing().when(productService).deleteProduct(999L);
+        UUID randUUID = UUID.randomUUID();
+        Mockito.doNothing().when(productService).deleteProduct(randUUID);
 
-        mockMvc.perform(delete("/api/v1/products/999"))
+        mockMvc.perform(delete("/api/v1/products/" + randUUID))
                 .andExpect(status().isNoContent());
     }
 }

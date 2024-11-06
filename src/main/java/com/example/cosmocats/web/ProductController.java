@@ -1,6 +1,7 @@
 package com.example.cosmocats.web;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +47,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDto> getProductById(@PathVariable UUID id) {
         Product product = productService.getProductById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
         return ResponseEntity.ok(productMapper.productToDto(product));
@@ -54,7 +55,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductDto> updateOrCreateProduct(
-        @PathVariable Long id,
+        @PathVariable UUID id,
         @Valid @RequestBody ProductDto productDto) {
 
     Product product = productMapper.dtoToProduct(productDto);
@@ -64,7 +65,7 @@ public class ProductController {
 }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
