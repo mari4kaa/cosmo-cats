@@ -6,6 +6,9 @@ import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
 import com.example.cosmocats.web.ProductController;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.SneakyThrows;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -74,7 +77,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void getProductById_withValidId_shouldReturnProduct() throws Exception {
+    @SneakyThrows
+    void getProductById_withValidId_shouldReturnProduct() {
         Mockito.when(productService.getProductById(productUUID)).thenReturn(Optional.of(validProduct));
 
         mockMvc.perform(get("/api/v1/products/" + productUUID))
@@ -85,7 +89,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void getProductById_withNonExistentId_shouldReturn404() throws Exception {
+    @SneakyThrows
+    void getProductById_withNonExistentId_shouldReturn404() {
         UUID randUUID = UUID.randomUUID();
         Mockito.when(productService.getProductById(randUUID)).thenReturn(Optional.empty());
 
@@ -96,7 +101,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void getAllProducts_shouldReturnProductList() throws Exception {
+    @SneakyThrows
+    void getAllProducts_shouldReturnProductList() {
         Mockito.when(productService.getAllProducts()).thenReturn(List.of(validProduct));
 
         mockMvc.perform(get("/api/v1/products"))
@@ -106,7 +112,8 @@ class ProductControllerTest {
     }
     
     @Test
-    void createProduct_withValidData_shouldReturn200() throws Exception {
+    @SneakyThrows
+    void createProduct_withValidData_shouldReturn200() {
         Mockito.when(productService.createProduct(Mockito.any(Product.class))).thenReturn(validProduct);
 
         mockMvc.perform(post("/api/v1/products")
@@ -119,7 +126,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void updateProduct_withValidUpdatedData_shouldReturn200() throws Exception {
+    @SneakyThrows
+    void updateProduct_withValidUpdatedData_shouldReturn200() {
         Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProduct);
         mockMvc.perform(put("/api/v1/products/" + productUUID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +137,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void createProduct_withInvalidName_shouldReturn400() throws Exception {
+    @SneakyThrows
+    void createProduct_withInvalidName_shouldReturn400() {
     ProductDto invalidProduct = ProductDto.builder()
         .id(productUUID)
         .categoryId(categoryUUID)
@@ -152,7 +161,8 @@ class ProductControllerTest {
 }
 
     @Test
-    void createProduct_withInvalidOrigin_shouldReturn400() throws Exception {
+    @SneakyThrows
+    void createProduct_withInvalidOrigin_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
             .id(productUUID)
             .categoryId(categoryUUID)
@@ -173,7 +183,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void createProduct_withNegativePrice_shouldReturn400() throws Exception {
+    @SneakyThrows
+    void createProduct_withNegativePrice_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
             .id(productUUID)
             .categoryId(categoryUUID)
@@ -194,7 +205,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void createProduct_withTooLongDescription_shouldReturn400() throws Exception {
+    @SneakyThrows
+    void createProduct_withTooLongDescription_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
             .id(productUUID)
             .categoryId(categoryUUID)
@@ -215,7 +227,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void updateOrCreateProduct_withInvalidCategoryId_shouldReturn400() throws Exception {
+    @SneakyThrows
+    void updateOrCreateProduct_withInvalidCategoryId_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
             .id(productUUID)
             .categoryId(null)  // Invalid: categoryId cannot be null
@@ -236,7 +249,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void deleteProduct_withValidId_shouldReturn204() throws Exception {
+    @SneakyThrows
+    void deleteProduct_withValidId_shouldReturn204() {
         Mockito.doNothing().when(productService).deleteProduct(productUUID);
 
         mockMvc.perform(delete("/api/v1/products/" + productUUID))
@@ -244,7 +258,8 @@ class ProductControllerTest {
     }
 
     @Test
-    void deleteProduct_withNonExistentId_shouldReturn204() throws Exception {
+    @SneakyThrows
+    void deleteProduct_withNonExistentId_shouldReturn204() {
         UUID randUUID = UUID.randomUUID();
         Mockito.doNothing().when(productService).deleteProduct(randUUID);
 
