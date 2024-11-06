@@ -38,7 +38,7 @@ class ProductServiceTest {
         assertEquals("CatStronaut Helmet", createdProduct.getName());
         assertEquals("Lunar Paw Station", createdProduct.getOrigin());
         assertEquals(79.99f, createdProduct.getPrice());
-        assertEquals(1L, createdProduct.getId());
+        assertNotEquals(testProduct.getId(), createdProduct.getId()); // should ignore inputted ID because of security
     }
 
     @Test

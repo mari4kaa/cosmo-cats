@@ -92,7 +92,7 @@ class ProductControllerTest {
         mockMvc.perform(get("/api/v1/products/" + randUUID))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").value("Product not found with id: 999"));
+                .andExpect(jsonPath("$.message").value("Product not found with id: " + randUUID));
     }
 
     @Test
@@ -120,7 +120,7 @@ class ProductControllerTest {
 
     @Test
     void updateProduct_withValidUpdatedData_shouldReturn200() throws Exception {
-        Mockito.when(productService.updateProduct(UUID.randomUUID(), Mockito.any())).thenReturn(validProduct); // Updated product
+        Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProduct);
         mockMvc.perform(put("/api/v1/products/" + productUUID)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validProductDto)))
@@ -231,8 +231,8 @@ class ProductControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.message").value("Validation failed: , categoryId: Category ID cannot be negative"))
-                .andExpect(jsonPath("$.path").value("uri=/api/v1/products/1"));
+                .andExpect(jsonPath("$.message").value("Validation failed: , categoryId: Category id is required"))
+                .andExpect(jsonPath("$.path").value("uri=/api/v1/products/" + productUUID));
     }
 
     @Test
