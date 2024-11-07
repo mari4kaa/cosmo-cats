@@ -2,8 +2,9 @@ package com.example.cosmocats.validation.validators;
 
 import java.util.Arrays;
 import java.util.List;
+
+import com.example.cosmocats.validation.enums.CosmicOrigins;
 import com.example.cosmocats.validation.interfaces.CosmicOrigin;
-import com.example.cosmocats.validation.validators.enums.CosmicOrigins;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

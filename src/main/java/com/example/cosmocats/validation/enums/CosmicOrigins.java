@@ -1,4 +1,4 @@
-package com.example.cosmocats.validation.validators.enums;
+package com.example.cosmocats.validation.enums;
 
 import java.util.Arrays;
 

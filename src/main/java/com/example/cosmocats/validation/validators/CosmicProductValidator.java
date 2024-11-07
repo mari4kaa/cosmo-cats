@@ -2,8 +2,8 @@ package com.example.cosmocats.validation.validators;
 
 import java.util.Arrays;
 
+import com.example.cosmocats.validation.enums.CosmicWords;
 import com.example.cosmocats.validation.interfaces.CosmicProduct;
-import com.example.cosmocats.validation.validators.enums.CosmicWords;
 
 public class CosmicProductValidator extends BaseContainsValidator<CosmicProduct> {
     @Override
