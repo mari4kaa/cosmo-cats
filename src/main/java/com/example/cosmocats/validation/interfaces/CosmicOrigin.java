@@ -14,7 +14,6 @@ import jakarta.validation.Payload;
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CosmicOrigin  {
-    String message() default "Origin must be some known planet";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

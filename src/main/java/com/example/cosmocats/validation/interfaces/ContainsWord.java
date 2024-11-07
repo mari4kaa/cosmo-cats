@@ -15,7 +15,6 @@ import com.example.cosmocats.validation.validators.ContainsWordValidator;
 public @interface ContainsWord {
     String[] value();
     boolean ignoreCase() default true;
-    String message() default "Field must contain one of the specified words";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
