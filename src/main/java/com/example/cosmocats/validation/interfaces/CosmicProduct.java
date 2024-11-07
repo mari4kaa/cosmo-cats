@@ -13,6 +13,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CosmicProduct {
+    String message() default "Will be overwritten";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -4,6 +4,8 @@ import com.example.cosmocats.domain.Category;
 import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
+import com.example.cosmocats.validation.enums.CosmicOrigins;
+import com.example.cosmocats.validation.enums.CosmicWords;
 import com.example.cosmocats.web.ProductController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -110,15 +112,15 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Cosmic Beam"));
     }
-    
+
     @Test
     @SneakyThrows
     void createProduct_withValidData_shouldReturn200() {
         Mockito.when(productService.createProduct(Mockito.any(Product.class))).thenReturn(validProduct);
 
         mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validProductDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validProductDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Cosmic Beam"))
                 .andExpect(jsonPath("$.origin").value("Terra"))
@@ -130,8 +132,8 @@ class ProductControllerTest {
     void updateProduct_withValidUpdatedData_shouldReturn200() {
         Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProduct);
         mockMvc.perform(put("/api/v1/products/" + productUUID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validProductDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validProductDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Cosmic Beam"));
     }
@@ -139,46 +141,54 @@ class ProductControllerTest {
     @Test
     @SneakyThrows
     void createProduct_withInvalidName_shouldReturn400() {
-    ProductDto invalidProduct = ProductDto.builder()
-        .id(productUUID)
-        .categoryId(categoryUUID)
-        .name("")  // Invalid: name cannot be blank, must be between 2 and 100 characters and contain a cosmic word
-        .description("A cosmic product for stellar journeys.")
-        .origin("Terra")
-        .price(199.99f)
-        .build();
+        ProductDto invalidProduct = ProductDto.builder()
+                .id(productUUID)
+                .categoryId(categoryUUID)
+                .name("") // Invalid: name cannot be blank, must be between 2 and 100 characters and
+                          // contain a cosmic word
+                .description("A cosmic product for stellar journeys.")
+                .origin("Terra")
+                .price(199.99f)
+                .build();
 
-    mockMvc.perform(post("/api/v1/products")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(invalidProduct)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(400))
-            .andExpect(jsonPath("$.detail").exists())
-            .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name: Field must contain one of 'cosmic words'")))
-            .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name: Product name must be between 2 and 100 characters")))
-            .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.containsString("name: Product name is required")))
-            .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
-}
+        mockMvc.perform(post("/api/v1/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidProduct)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").exists())
+                .andExpect(jsonPath("$.detail")
+                        .value(org.hamcrest.Matchers.containsString(
+                                "Validation failed: name: Product should contain at least one of cosmic words: "
+                                        + String.join(", ", CosmicWords.getValues()))))
+                .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers
+                        .containsString("name: Product name must be between 2 and 100 characters")))
+                .andExpect(jsonPath("$.detail")
+                        .value(org.hamcrest.Matchers.containsString("name: Product name is required")))
+                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
+    }
 
     @Test
     @SneakyThrows
     void createProduct_withInvalidOrigin_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(productUUID)
-            .categoryId(categoryUUID)
-            .name("Intergalactic Jet")
-            .description("A cosmic product for stellar journeys.")
-            .origin("UnknownPlanet")  // Invalid: origin must be a known planet
-            .price(199.99f)
-            .build();
+                .id(productUUID)
+                .categoryId(categoryUUID)
+                .name("Intergalactic Jet")
+                .description("A cosmic product for stellar journeys.")
+                .origin("UnknownPlanet") // Invalid: origin must be a known planet
+                .price(199.99f)
+                .build();
 
         mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidProduct)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").exists())
-                .andExpect(jsonPath("$.detail").value("Validation failed: origin: Origin must be some known planet"))
+                .andExpect(jsonPath("$.detail")
+                        .value("Validation failed: origin: String should contain at least one of next words: "
+                                + String.join(", ", CosmicOrigins.getValues())))
                 .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
     }
 
@@ -186,17 +196,17 @@ class ProductControllerTest {
     @SneakyThrows
     void createProduct_withNegativePrice_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(productUUID)
-            .categoryId(categoryUUID)
-            .name("Space Orb")
-            .description("An interstellar item.")
-            .origin("Terra")
-            .price(-50.0f)  // Invalid: price cannot be negative
-            .build();
+                .id(productUUID)
+                .categoryId(categoryUUID)
+                .name("Space Orb")
+                .description("An interstellar item.")
+                .origin("Terra")
+                .price(-50.0f) // Invalid: price cannot be negative
+                .build();
 
         mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidProduct)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").exists())
@@ -208,21 +218,22 @@ class ProductControllerTest {
     @SneakyThrows
     void createProduct_withTooLongDescription_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(productUUID)
-            .categoryId(categoryUUID)
-            .name("Intergalactic Shard")
-            .description("S".repeat(501))  // Invalid: description cannot exceed 500 characters
-            .origin("Terra")
-            .price(150.0f)
-            .build();
+                .id(productUUID)
+                .categoryId(categoryUUID)
+                .name("Intergalactic Shard")
+                .description("S".repeat(501)) // Invalid: description cannot exceed 500 characters
+                .origin("Terra")
+                .price(150.0f)
+                .build();
 
         mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidProduct)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").exists())
-                .andExpect(jsonPath("$.detail").value("Validation failed: description: Description cannot exceed 500 characters"))
+                .andExpect(jsonPath("$.detail")
+                        .value("Validation failed: description: Description cannot exceed 500 characters"))
                 .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
     }
 
@@ -230,17 +241,17 @@ class ProductControllerTest {
     @SneakyThrows
     void updateOrCreateProduct_withInvalidCategoryId_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
-            .id(productUUID)
-            .categoryId(null)  // Invalid: categoryId cannot be null
-            .name("Cosmic Yarn")
-            .description("Perfect yarn for cosmo cats.")
-            .origin("Terra")
-            .price(120.0f)
-            .build();
+                .id(productUUID)
+                .categoryId(null) // Invalid: categoryId cannot be null
+                .name("Cosmic Yarn")
+                .description("Perfect yarn for cosmo cats.")
+                .origin("Terra")
+                .price(120.0f)
+                .build();
 
         mockMvc.perform(put("/api/v1/products/" + productUUID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidProduct)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").exists())
@@ -267,6 +278,3 @@ class ProductControllerTest {
                 .andExpect(status().isNoContent());
     }
 }
-
-
-

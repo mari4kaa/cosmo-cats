@@ -13,9 +13,6 @@ public abstract class BaseContainsValidator<T extends Annotation> implements Con
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null || value.isEmpty()) {
-            return false;
-        }
         boolean valid = words.stream()
                 .anyMatch(word -> ignoreCase ? insensitiveMatch(word, value) : sensitiveMatch(word, value));
 
