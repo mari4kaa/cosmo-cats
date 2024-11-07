@@ -159,7 +159,7 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.detail").exists())
                 .andExpect(jsonPath("$.detail")
                         .value(org.hamcrest.Matchers.containsString(
-                                "Validation failed: name: Product should contain at least one of cosmic words: "
+                                "name: Product should contain at least one of cosmic words: "
                                         + String.join(", ", CosmicWords.getValues()))))
                 .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers
                         .containsString("name: Product name must be between 2 and 100 characters")))
