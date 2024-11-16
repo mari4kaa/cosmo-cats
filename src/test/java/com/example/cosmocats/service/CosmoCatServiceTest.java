@@ -28,13 +28,9 @@ class CosmoCatServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Create the target service
         CosmoCatService targetService = new CosmoCatService();
-
-        // Create the aspect with mocked service
         FeatureToggleAspect aspect = new FeatureToggleAspect(featureToggleService);
 
-        // Use AspectJProxyFactory for proxy creation
         AspectJProxyFactory factory = new AspectJProxyFactory(targetService);
         factory.addAspect(aspect);
 
