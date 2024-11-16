@@ -46,6 +46,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework:spring-aspects:6.0.11'
 
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.aspectj:aspectjweaver:1.9.21'
+    implementation 'org.aspectj:aspectjrt:1.9.21'
 }
 
 tasks.named('test') {
