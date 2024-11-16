@@ -20,15 +20,13 @@ public class FeatureToggleAspect {
         this.featureToggleService = featureToggleService;
     }
 
-    @Around("@annotation(com.example.cosmocats.featureToggle.FeatureToggle)")
+    @Around("@annotation(com.example.featuretoggle.annotation.FeatureToggle)")
     public Object checkFeatureToggle(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         FeatureToggle featureToggle = signature.getMethod().getAnnotation(FeatureToggle.class);
         
         if (!featureToggleService.isFeatureEnabled(featureToggle.feature())) {
-            throw new FeatureNotAvailableException(
-                "Feature " + featureToggle.feature() + " is not available"
-            );
+            throw new FeatureNotAvailableException(featureToggle.feature());
         }
         
         return joinPoint.proceed();

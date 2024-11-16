@@ -1,4 +1,4 @@
-package com.example.featuretoggle;
+package com.example.cosmocats.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -11,11 +11,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
+import org.springframework.aop.support.AopUtils;
 
 import com.example.featuretoggle.exceptions.FeatureNotAvailableException;
+import com.example.featuretoggle.FeatureToggles;
 import com.example.featuretoggle.aspect.FeatureToggleAspect;
 import com.example.featuretoggle.service.FeatureToggleService;
-import com.example.cosmocats.service.CosmoCatService;
 
 @ExtendWith(MockitoExtension.class)
 class CosmoCatServiceTest {
@@ -23,25 +24,33 @@ class CosmoCatServiceTest {
     @Mock
     private FeatureToggleService featureToggleService;
 
-    private CosmoCatService cosmoCatService;
     private CosmoCatService proxiedCosmoCatService;
 
     @BeforeEach
     void setUp() {
-        cosmoCatService = new CosmoCatService();
-        
-        AspectJProxyFactory factory = new AspectJProxyFactory(cosmoCatService);
+        // Create the target service
+        CosmoCatService targetService = new CosmoCatService();
+
+        // Create the aspect with mocked service
         FeatureToggleAspect aspect = new FeatureToggleAspect(featureToggleService);
+
+        // Use AspectJProxyFactory for proxy creation
+        AspectJProxyFactory factory = new AspectJProxyFactory(targetService);
         factory.addAspect(aspect);
-        
+
+        // Get the proxied service
         proxiedCosmoCatService = factory.getProxy();
+
+        // Verify that we actually created a proxy
+        assertTrue(AopUtils.isAopProxy(proxiedCosmoCatService));
     }
 
     @Test
-    void getCosmoCats_WhenFeatureEnabled_ShouldReturnCats() {
-        
-        when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
-            .thenReturn(true);
+void getCosmoCats_WhenFeatureEnabled_ShouldReturnCats() {
+    when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
+        .thenReturn(true);
+
+    try {
 
         List<String> result = proxiedCosmoCatService.getCosmoCats();
 
@@ -50,19 +59,27 @@ class CosmoCatServiceTest {
         assertTrue(result.contains("Space Cat"));
         assertTrue(result.contains("Galaxy Cat"));
         assertTrue(result.contains("Star Cat"));
-        
+
         verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
+
+    } catch (FeatureNotAvailableException e) {
+        fail("Exception should not be thrown when feature is enabled: " + e.getMessage());
     }
+}
+
 
     @Test
     void getCosmoCats_WhenFeatureDisabled_ShouldThrowException() {
 
-        when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
-            .thenReturn(false);
+    when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
+        .thenReturn(false);
 
-        assertThrows(FeatureNotAvailableException.class, 
-            () -> proxiedCosmoCatService.getCosmoCats());
-        
-        verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
-    }
+    FeatureNotAvailableException exception = assertThrows(
+        FeatureNotAvailableException.class,
+        () -> proxiedCosmoCatService.getCosmoCats()
+    );
+
+    assertEquals("Feature cosmoCats is not available", exception.getMessage());
+    verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
+}
 }
