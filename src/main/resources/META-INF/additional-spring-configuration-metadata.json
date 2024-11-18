@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "feature.cosmoCats.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Is service enabled"
+  },
+  {
+    "name": "feature.kittyProducts.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Are kitty products enabled"
+  }
+]}
