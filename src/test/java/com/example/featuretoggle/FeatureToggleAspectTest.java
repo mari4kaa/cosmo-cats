@@ -15,6 +15,8 @@ import com.example.featuretoggle.aspect.FeatureToggleAspect;
 import com.example.featuretoggle.exceptions.FeatureNotAvailableException;
 import com.example.featuretoggle.service.FeatureToggleService;
 
+import lombok.SneakyThrows;
+
 import java.lang.reflect.Method;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +36,8 @@ class FeatureToggleAspectTest {
     }
 
     @Test
-    void checkFeatureToggle_WhenFeatureEnabled_ShouldProceed() throws Throwable {
+    @SneakyThrows
+    void checkFeatureToggle_WhenFeatureEnabled_ShouldProceed() {
 
         Method method = TestService.class.getMethod("testMethod");
         when(joinPoint.getSignature()).thenReturn(new TestMethodSignature(method));
@@ -49,7 +52,8 @@ class FeatureToggleAspectTest {
     }
 
     @Test
-    void checkFeatureToggle_WhenFeatureDisabled_ShouldThrowException() throws Throwable {
+    @SneakyThrows
+    void checkFeatureToggle_WhenFeatureDisabled_ShouldThrowException() {
 
         Method method = TestService.class.getMethod("testMethod");
         when(joinPoint.getSignature()).thenReturn(new TestMethodSignature(method));

@@ -42,40 +42,40 @@ class CosmoCatServiceTest {
     }
 
     @Test
-void getCosmoCats_WhenFeatureEnabled_ShouldReturnCats() {
-    when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
-        .thenReturn(true);
+    void getCosmoCats_WhenFeatureEnabled_ShouldReturnCats() {
+        when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
+            .thenReturn(true);
 
-    try {
+        try {
 
-        List<String> result = proxiedCosmoCatService.getCosmoCats();
+            List<String> result = proxiedCosmoCatService.getCosmoCats();
 
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertTrue(result.contains("Space Cat"));
-        assertTrue(result.contains("Galaxy Cat"));
-        assertTrue(result.contains("Star Cat"));
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            assertTrue(result.contains("Space Cat"));
+            assertTrue(result.contains("Galaxy Cat"));
+            assertTrue(result.contains("Star Cat"));
 
-        verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
+            verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
 
-    } catch (FeatureNotAvailableException e) {
-        fail("Exception should not be thrown when feature is enabled: " + e.getMessage());
-    }
+        } catch (FeatureNotAvailableException e) {
+            fail("Exception should not be thrown when feature is enabled: " + e.getMessage());
+        }
 }
 
 
     @Test
     void getCosmoCats_WhenFeatureDisabled_ShouldThrowException() {
 
-    when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
-        .thenReturn(false);
+        when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
+            .thenReturn(false);
 
-    FeatureNotAvailableException exception = assertThrows(
-        FeatureNotAvailableException.class,
-        () -> proxiedCosmoCatService.getCosmoCats()
-    );
+        FeatureNotAvailableException exception = assertThrows(
+            FeatureNotAvailableException.class,
+            () -> proxiedCosmoCatService.getCosmoCats()
+        );
 
-    assertEquals("Feature cosmoCats is not available", exception.getMessage());
-    verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
-}
+        assertEquals("Feature cosmoCats is not available", exception.getMessage());
+        verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
+    }
 }
