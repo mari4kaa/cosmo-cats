@@ -3,12 +3,17 @@ databaseChangeLog:
       id: 1
       author: maksym
       changes:
+        - createSequence:
+            sequenceName: category_id_seq
+            startValue: 1
+            incrementBy: 1
+
         - createTable:
             tableName: category
             columns:
               - column:
                   name: id
-                  type: UUID
+                  type: BIGINT
                   constraints:
                     primaryKey: true
               - column:
@@ -16,3 +21,9 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
+
+        - createIndex:
+            tableName: category
+            indexName: idx_category_name
+            columns:
+              - name
