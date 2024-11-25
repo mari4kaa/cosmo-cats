@@ -32,3 +32,12 @@ databaseChangeLog:
               - column:
                   name: price
                   type: FLOAT
+        - addUniqueConstraint:
+            tableName: product
+            columnNames: category_id, name
+            constraintName: uq_product_category_name
+        - createIndex:
+            tableName: product
+            indexName: idx_product_name
+            columns:
+              - name
