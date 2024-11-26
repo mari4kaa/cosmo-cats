@@ -1,24 +1,19 @@
 package com.example.featuretoggle.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.featuretoggle.FeatureToggles;
+import com.example.featuretoggle.config.FeatureTogglesConfig;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class FeatureToggleService {
-    
+
     private final Map<String, Boolean> features = new HashMap<>();
 
-    public FeatureToggleService(
-            @Value("${feature.cosmoCats.enabled:false}") boolean cosmoCatsEnabled,
-            @Value("${feature.kittyProducts.enabled:false}") boolean kittyProductsEnabled
-    ) {
-        features.put(FeatureToggles.COSMO_CATS, cosmoCatsEnabled);
-        features.put(FeatureToggles.KITTY_PRODUCTS, kittyProductsEnabled);
+    public FeatureToggleService(FeatureTogglesConfig featureTogglesConfig) {
+        this.features.putAll(featureTogglesConfig.getToggles());
     }
 
     public boolean isFeatureEnabled(String featureName) {
