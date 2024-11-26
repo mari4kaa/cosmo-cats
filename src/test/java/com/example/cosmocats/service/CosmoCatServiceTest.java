@@ -59,7 +59,7 @@ class CosmoCatServiceTest {
             verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
 
         } catch (FeatureNotAvailableException e) {
-            fail("Exception should not be thrown when feature is enabled: " + e.getMessage());
+            fail(String.format("Exception should not be thrown when feature is enabled: %s", e.getMessage()));
         }
 }
 

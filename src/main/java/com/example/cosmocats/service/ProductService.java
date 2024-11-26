@@ -30,7 +30,7 @@ public class ProductService {
             products.put(newProduct.getId(), newProduct);
             return newProduct;
         } catch (Exception e) {
-            throw new ProductCreationException("Failed to create product: " + e.getMessage());
+            throw new ProductCreationException(String.format("Failed to create product: %s", e.getMessage()));
         }
     }
 
@@ -57,7 +57,7 @@ public class ProductService {
 
            return product;
         } catch (Exception e) {
-            throw new ProductUpdateException("Failed to update product: " + e.getMessage());
+            throw new ProductUpdateException(String.format("Failed to update product: %s", e.getMessage()));
         }
     }
 

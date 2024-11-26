@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class FeatureNotAvailableException extends Exception {
     public FeatureNotAvailableException(String feature) {
-        super("Feature " + feature + " is not available");
+        super(String.format("Feature %s is not available", feature));
     }
 }
