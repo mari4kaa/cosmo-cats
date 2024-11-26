@@ -14,6 +14,8 @@ import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import org.springframework.aop.support.AopUtils;
 
 import com.example.featuretoggle.exceptions.FeatureNotAvailableException;
+import com.example.cosmocats.domain.CatInfo;
+import com.example.cosmocats.dto.CatInfoDto;
 import com.example.featuretoggle.FeatureToggles;
 import com.example.featuretoggle.aspect.FeatureToggleAspect;
 import com.example.featuretoggle.service.FeatureToggleService;
@@ -44,36 +46,41 @@ class CosmoCatServiceTest {
     @Test
     void getCosmoCats_WhenFeatureEnabled_ShouldReturnCats() {
         when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
-            .thenReturn(true);
+                .thenReturn(true);
 
         try {
 
-            List<String> result = proxiedCosmoCatService.getCosmoCats();
+            List<CatInfoDto> result = proxiedCosmoCatService.getCosmoCats();
 
             assertNotNull(result);
             assertFalse(result.isEmpty());
-            assertTrue(result.contains("Space Cat"));
-            assertTrue(result.contains("Galaxy Cat"));
-            assertTrue(result.contains("Star Cat"));
+
+            assertTrue(
+                    result.stream().anyMatch(cat -> "Cosmo Cat".equals(cat.getName())),
+                    "Expected 'Space Cat' in the result list");
+            assertTrue(
+                    result.stream().anyMatch(cat -> "Astro Cat".equals(cat.getName())),
+                    "Expected 'Galaxy Cat' in the result list");
+            assertTrue(
+                    result.stream().anyMatch(cat -> "Star Cat".equals(cat.getName())),
+                    "Expected 'Star Cat' in the result list");
 
             verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
 
         } catch (FeatureNotAvailableException e) {
             fail(String.format("Exception should not be thrown when feature is enabled: %s", e.getMessage()));
         }
-}
-
+    }
 
     @Test
     void getCosmoCats_WhenFeatureDisabled_ShouldThrowException() {
 
         when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS))
-            .thenReturn(false);
+                .thenReturn(false);
 
         FeatureNotAvailableException exception = assertThrows(
-            FeatureNotAvailableException.class,
-            () -> proxiedCosmoCatService.getCosmoCats()
-        );
+                FeatureNotAvailableException.class,
+                () -> proxiedCosmoCatService.getCosmoCats());
 
         assertEquals("Feature cosmoCats is not available", exception.getMessage());
         verify(featureToggleService).isFeatureEnabled(FeatureToggles.COSMO_CATS);
