@@ -12,6 +12,6 @@ public interface CatInfoMapper {
         return Mappers.getMapper(CatInfoMapper.class);
     }
 
-    CatInfoDto categoryToDto(CatInfo category);
+    CatInfoDto catInfoToDto(CatInfo catInfo);
     CatInfo dtoToCategory(CatInfoDto dto);
 }
