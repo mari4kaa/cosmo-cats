@@ -26,7 +26,7 @@ public class CosmoCatController {
     }
 
     @GetMapping
-    @FeatureToggle(feature = FeatureToggles.COSMO_CATS)
+    @FeatureToggle(FeatureToggles.COSMO_CATS)
     public ResponseEntity<List<CatInfoDto>> getCosmoCats() {
         List<CatInfo> catInfos = cosmoCatService.getAllCatsInfos();
         List<CatInfoDto> catInfoDtos = catInfos.stream()

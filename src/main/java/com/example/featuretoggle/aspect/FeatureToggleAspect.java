@@ -3,7 +3,6 @@ package com.example.featuretoggle.aspect;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import com.example.featuretoggle.annotation.FeatureToggle;
@@ -21,12 +20,11 @@ public class FeatureToggleAspect {
     }
 
     @Around("@annotation(com.example.featuretoggle.annotation.FeatureToggle)")
-    public Object checkFeatureToggle(ProceedingJoinPoint joinPoint) throws Throwable {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        FeatureToggle featureToggle = signature.getMethod().getAnnotation(FeatureToggle.class);
+    public Object checkFeatureToggle(ProceedingJoinPoint joinPoint, FeatureToggle featureToggle) throws Throwable {
+        String featureName = featureToggle.value().getFeatureName();
         
-        if (!featureToggleService.isFeatureEnabled(featureToggle.feature())) {
-            throw new FeatureNotAvailableException(featureToggle.feature());
+        if (!featureToggleService.isFeatureEnabled(featureName)) {
+            throw new FeatureNotAvailableException(featureName);
         }
         
         return joinPoint.proceed();
