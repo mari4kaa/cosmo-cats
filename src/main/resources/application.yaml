@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: cosmo-cats
+
+feature:
+  cosmoCats:
+    enabled: true
+  kittyProducts:
+    enabled: false

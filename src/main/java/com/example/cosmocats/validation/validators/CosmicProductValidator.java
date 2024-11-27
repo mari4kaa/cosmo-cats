@@ -10,6 +10,6 @@ public class CosmicProductValidator extends BaseContainsValidator<CosmicProduct>
     public void initialize(CosmicProduct constraintAnnotation) {
         this.words = Arrays.asList(CosmicWords.getValues());
         this.ignoreCase = true;
-        error = "Product should contain at least one of cosmic words: " + String.join(", ", words);
+        error = String.format("Product should contain at least one of cosmic words: %s", String.join(", ", words));
     }
 }
