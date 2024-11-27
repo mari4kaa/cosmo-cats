@@ -19,7 +19,7 @@ public class FeatureToggleAspect {
         this.featureToggleService = featureToggleService;
     }
 
-    @Around("@annotation(com.example.featuretoggle.annotation.FeatureToggle)")
+    @Around("@annotation(featureToggle)")
     public Object checkFeatureToggle(ProceedingJoinPoint joinPoint, FeatureToggle featureToggle) throws Throwable {
         String featureName = featureToggle.value().getFeatureName();
         
