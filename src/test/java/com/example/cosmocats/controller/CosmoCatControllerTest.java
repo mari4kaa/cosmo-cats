@@ -6,6 +6,9 @@ import com.example.cosmocats.web.CosmoCatController;
 import com.example.featuretoggle.FeatureToggles;
 import com.example.featuretoggle.aspect.FeatureToggleAspect;
 import com.example.featuretoggle.service.FeatureToggleService;
+
+import lombok.SneakyThrows;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +46,8 @@ class CosmoCatControllerTest {
     }
 
     @Test
-    void shouldReturnListOfCosmoCatsWhenFeatureIsEnabled() throws Exception {
+    @SneakyThrows
+    void shouldReturnListOfCosmoCatsWhenFeatureIsEnabled() {
 
         var catInfos = List.of(
                 CatInfo.builder()
@@ -62,7 +66,6 @@ class CosmoCatControllerTest {
 
         when(cosmoCatService.getAllCatsInfos()).thenReturn(catInfos);
 
-        // When & Then
         mockMvc.perform(get("/api/v1/cosmo-cats")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -73,9 +76,16 @@ class CosmoCatControllerTest {
     }
 
     @Test
-    void shouldReturn404WhenFeatureIsDisabled() throws Exception {
+    @SneakyThrows
+    void shouldReturn404WhenFeatureIsDisabled() {
         when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS.getFeatureName()))
                 .thenReturn(false);
+
+        when(cosmoCatService.getAllCatsInfos()).thenReturn(List.of(
+            CatInfo.builder()
+                    .id(UUID.randomUUID())
+                    .name("Cosmo Cat")
+                    .build()));
 
         mockMvc.perform(get("/api/v1/cosmo-cats")
                         .contentType(MediaType.APPLICATION_JSON))

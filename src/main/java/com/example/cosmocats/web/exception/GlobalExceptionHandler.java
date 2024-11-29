@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.example.featuretoggle.exceptions.FeatureNotAvailableException;
+
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
 
@@ -66,5 +68,10 @@ public class GlobalExceptionHandler {
         error.setInstance(URI.create(request.getDescription(false)));
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(FeatureNotAvailableException.class)
+    public ResponseEntity<String> handleFeatureNotAvailable(FeatureNotAvailableException ex) {
+        return ResponseEntity.notFound().build();
     }
 }

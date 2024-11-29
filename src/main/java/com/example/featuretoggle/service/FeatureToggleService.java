@@ -4,16 +4,15 @@ import org.springframework.stereotype.Service;
 
 import com.example.featuretoggle.config.FeatureTogglesConfig;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class FeatureToggleService {
 
-    private final Map<String, Boolean> features = new HashMap<>();
+    private final ConcurrentHashMap<String, Boolean> features;
 
     public FeatureToggleService(FeatureTogglesConfig featureTogglesConfig) {
-        this.features.putAll(featureTogglesConfig.getToggles());
+        features = new ConcurrentHashMap<>(featureTogglesConfig.getToggles());
     }
 
     public boolean isFeatureEnabled(String featureName) {
