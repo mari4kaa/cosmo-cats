@@ -1,12 +1,16 @@
 package com.example.cosmocats.mapper;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import com.example.cosmocats.domain.order.Order;
-import com.example.cosmocats.entities.OrderEntity;
-
+import com.example.cosmocats.domain.order.OrderEntry;
+import com.example.cosmocats.dto.order.OrderDto;
 
 @Mapper
 public interface OrderMapper {
@@ -14,15 +18,23 @@ public interface OrderMapper {
         return Mappers.getMapper(OrderMapper.class);
     }
 
-    @Mapping(target = "id", expression = "java(orderEntity.getId() != null ? UUID.fromString(orderEntity.getId().toString()) : null)")
-    @Mapping(target = "entries", expression = "java(orderEntity.getEntries().stream().map(entry -> UUID.fromString(entry.getProduct().getId().toString())).collect(Collectors.toList()))")
-    Order entityToDomain(OrderEntity orderEntity);
+    @Mapping(target = "entryIds", source = "entries")
+    OrderDto orderToDto(Order order);
 
-    @Mapping(target = "id", expression = "java(order.getId() != null ? order.getId().toString() : null)")
-    @Mapping(target = "entries", expression = "java(order.getEntryIds().stream().map(id -> { "
-            + "OrderEntryEntity entry = new OrderEntryEntity(); "
-            + "entry.setProduct(new com.example.cosmocats.entity.ProductEntity(id.toString())); "
-            + "return entry; "
-            + "}).collect(Collectors.toList()))")
-    OrderEntity domainToEntity(Order order);
+    @Mapping(target = "entries", source = "entryIds")
+    Order dtoToOrder(OrderDto dto);
+
+    default List<UUID> entriesToEntryIds(List<OrderEntry> entries) {
+        return entries.stream().map(entry -> entry.getProduct().getId()).collect(Collectors.toList());
+    }
+
+    default List<OrderEntry> entryIdsToEntries(List<UUID> entryIds) {
+        return entryIds.stream()
+                .map(id -> OrderEntry.builder()
+                        .product(com.example.cosmocats.domain.Product.builder()
+                                .id(id)
+                                .build())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }
