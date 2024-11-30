@@ -1,4 +1,4 @@
-package com.example.cosmocats.featuretoggle;
+package com.example.featuretoggle;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
