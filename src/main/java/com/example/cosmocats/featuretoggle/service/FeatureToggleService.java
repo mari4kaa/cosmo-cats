@@ -1,8 +1,8 @@
-package com.example.featuretoggle.service;
+package com.example.cosmocats.featuretoggle.service;
 
 import org.springframework.stereotype.Service;
 
-import com.example.featuretoggle.config.FeatureTogglesConfig;
+import com.example.cosmocats.featuretoggle.config.FeatureTogglesConfig;
 
 import java.util.concurrent.ConcurrentHashMap;
 

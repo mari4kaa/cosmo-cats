@@ -1,4 +1,4 @@
-package com.example.featuretoggle;
+package com.example.cosmocats.featuretoggle;
 
 import lombok.Getter;
 

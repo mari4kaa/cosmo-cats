@@ -1,4 +1,4 @@
-package com.example.featuretoggle;
+package com.example.cosmocats.featuretoggle;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,8 +7,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.example.featuretoggle.config.FeatureTogglesConfig;
-import com.example.featuretoggle.service.FeatureToggleService;
+
+import com.example.cosmocats.featuretoggle.config.FeatureTogglesConfig;
+import com.example.cosmocats.featuretoggle.service.FeatureToggleService;
+
 import java.util.HashMap;
 import java.util.Map;
 

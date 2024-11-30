@@ -1,11 +1,11 @@
 package com.example.cosmocats.controller;
 
 import com.example.cosmocats.domain.CatInfo;
+import com.example.cosmocats.featuretoggle.FeatureToggles;
+import com.example.cosmocats.featuretoggle.aspect.FeatureToggleAspect;
+import com.example.cosmocats.featuretoggle.service.FeatureToggleService;
 import com.example.cosmocats.service.CosmoCatService;
 import com.example.cosmocats.web.CosmoCatController;
-import com.example.featuretoggle.FeatureToggles;
-import com.example.featuretoggle.aspect.FeatureToggleAspect;
-import com.example.featuretoggle.service.FeatureToggleService;
 
 import lombok.SneakyThrows;
 

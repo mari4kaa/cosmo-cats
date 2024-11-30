@@ -1,13 +1,13 @@
-package com.example.featuretoggle.aspect;
+package com.example.cosmocats.featuretoggle.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import com.example.featuretoggle.annotation.FeatureToggle;
-import com.example.featuretoggle.exceptions.FeatureNotAvailableException;
-import com.example.featuretoggle.service.FeatureToggleService;
+import com.example.cosmocats.featuretoggle.annotation.FeatureToggle;
+import com.example.cosmocats.featuretoggle.exceptions.FeatureNotAvailableException;
+import com.example.cosmocats.featuretoggle.service.FeatureToggleService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class FeatureToggleAspect {
     
     private final FeatureToggleService featureToggleService;
 
-    @Around("@annotation(featureToggle)")
+    @Around(value = "@annotation(featuretoggle)")
     public Object checkFeatureToggle(ProceedingJoinPoint joinPoint, FeatureToggle featureToggle) throws Throwable {
         String featureName = featureToggle.value().getFeatureName();
         
