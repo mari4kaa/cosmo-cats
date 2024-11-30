@@ -1,67 +1,119 @@
 package com.example.cosmocats.service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import com.example.cosmocats.domain.Product;
+import com.example.cosmocats.dto.ProductDto;
+import com.example.cosmocats.entities.ProductEntity;
+import com.example.cosmocats.mapper.ProductMapper;
+import com.example.cosmocats.repository.ProductRepository;
 import com.example.cosmocats.service.exception.ProductCreationException;
+import com.example.cosmocats.service.exception.ProductDeletionException;
 import com.example.cosmocats.service.exception.ProductUpdateException;
+import com.example.cosmocats.web.exception.ProductNotFoundException;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j // If using Lombok logging
 public class ProductService {
-    private final Map<UUID, Product> products = new HashMap<>();
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public Product createProduct(Product product) {
+    @Transactional
+    public ProductDto createProduct(ProductDto productDto) {
         try {
-            Product newProduct = Product.builder()
-                    .id(UUID.randomUUID())
-                    .category(product.getCategory())
-                    .name(product.getName())
-                    .description(product.getDescription())
-                    .origin(product.getOrigin())
-                    .price(product.getPrice())
-                    .build();
-            products.put(newProduct.getId(), newProduct);
-            return newProduct;
+            // Optional: Add validation
+            validateProductDto(productDto);
+
+            // Convert DTO to entity
+            ProductEntity productEntity = productMapper.dtoToEntity(productDto);
+            
+            // Save the entity
+            ProductEntity savedEntity = productRepository.save(productEntity);
+            
+            log.info("Product created successfully with ID: {}", savedEntity.getId());
+            
+            // Convert saved entity back to DTO
+            return productMapper.entityToDto(savedEntity);
         } catch (Exception e) {
+            log.error("Failed to create product: {}", e.getMessage());
             throw new ProductCreationException("Failed to create product: " + e.getMessage());
         }
     }
 
-    public List<Product> getAllProducts() {
-        return new ArrayList<>(products.values());
+    @Transactional(readOnly = true)
+    public List<ProductDto> getAllProducts() {
+        return productRepository.findAll().stream()
+            .map(productMapper::entityToDto)
+            .collect(Collectors.toList());
     }
 
-    public Optional<Product> getProductById(UUID id) {
-        return Optional.ofNullable(products.get(id));
+    @Transactional(readOnly = true)
+    public Optional<ProductDto> getProductById(Long id) {
+        return productRepository.findById(id)
+            .map(productMapper::entityToDto);
     }
 
-    public Product updateProduct(UUID id, Product updatedProduct) {
+    @Transactional
+    public ProductDto updateProduct(Long id, ProductDto updatedProductDto) {
         try {
-            Product product = Product.builder()
-                    .id(id)
-                    .category(updatedProduct.getCategory())
-                    .name(updatedProduct.getName())
-                    .description(updatedProduct.getDescription())
-                    .origin(updatedProduct.getOrigin())
-                    .price(updatedProduct.getPrice())
-                    .build();
+            // Optional: Add validation
+            validateProductDto(updatedProductDto);
 
-            products.put(id, product);
-
-           return product;
+            return productRepository.findById(id)
+                .map(existingEntity -> {
+                    // Update existing entity with new data
+                    ProductEntity updatedEntity = productMapper.dtoToEntity(updatedProductDto);
+                    updatedEntity.setId(id);
+                    
+                    // Save the updated entity
+                    ProductEntity savedEntity = productRepository.save(updatedEntity);
+                    
+                    log.info("Product updated successfully with ID: {}", id);
+                    
+                    // Convert and return updated DTO
+                    return productMapper.entityToDto(savedEntity);
+                })
+                .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
         } catch (Exception e) {
+            log.error("Failed to update product with ID {}: {}", id, e.getMessage());
             throw new ProductUpdateException("Failed to update product: " + e.getMessage());
         }
     }
 
-    public void deleteProduct(UUID id) {
-        products.remove(id);
+    @Transactional
+    public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            log.error("Attempt to delete non-existent product with ID: {}", id);
+            throw new ProductNotFoundException("Product with id " + id + " not found");
+        }
+        
+        try {
+            productRepository.deleteById(id);
+            log.info("Product deleted successfully with ID: {}", id);
+        } catch (Exception e) {
+            log.error("Failed to delete product with ID {}: {}", id, e.getMessage());
+            throw new ProductDeletionException("Failed to delete product: " + e.getMessage());
+        }
+    }
+
+    // Optional validation method
+    private void validateProductDto(ProductDto productDto) {
+        // Add your validation logic here
+        // For example:
+        if (productDto == null) {
+            throw new IllegalArgumentException("Product cannot be null");
+        }
+        if (!StringUtils.hasLength(productDto.getName())) {
+            throw new IllegalArgumentException("Product name cannot be empty");
+        }
+        // Add more validation as needed
     }
 }
