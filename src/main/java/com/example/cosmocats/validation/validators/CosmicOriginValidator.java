@@ -16,7 +16,7 @@ public class CosmicOriginValidator implements ConstraintValidator<CosmicOrigin, 
     @Override
     public void initialize(CosmicOrigin constraintAnnotation) {
         this.validOrigins = Arrays.asList(CosmicOrigins.getValues());
-        error = "String should contain at least one of next words: " + String.join(", ", validOrigins);
+        error = String.format("String should contain at least one of next words: %s", String.join(", ", validOrigins));
     }
 
     @Override

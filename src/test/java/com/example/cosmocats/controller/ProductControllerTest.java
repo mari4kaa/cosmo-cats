@@ -83,7 +83,7 @@ class ProductControllerTest {
     void getProductById_withValidId_shouldReturnProduct() {
         Mockito.when(productService.getProductById(productUUID)).thenReturn(Optional.of(validProduct));
 
-        mockMvc.perform(get("/api/v1/products/" + productUUID))
+        mockMvc.perform(get(String.format("/api/v1/products/%s", productUUID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Cosmic Beam"))
                 .andExpect(jsonPath("$.origin").value("Terra"))
@@ -96,10 +96,10 @@ class ProductControllerTest {
         UUID randUUID = UUID.randomUUID();
         Mockito.when(productService.getProductById(randUUID)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/products/" + randUUID))
+        mockMvc.perform(get(String.format("/api/v1/products/%s", randUUID)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.detail").value("Product not found with id: " + randUUID));
+                .andExpect(jsonPath("$.detail").value(String.format("Product not found with id: %s", randUUID)));
     }
 
     @Test
@@ -131,7 +131,7 @@ class ProductControllerTest {
     @SneakyThrows
     void updateProduct_withValidUpdatedData_shouldReturn200() {
         Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProduct);
-        mockMvc.perform(put("/api/v1/products/" + productUUID)
+        mockMvc.perform(put(String.format("/api/v1/products/%s", productUUID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validProductDto)))
                 .andExpect(status().isOk())
@@ -249,14 +249,14 @@ class ProductControllerTest {
                 .price(120.0f)
                 .build();
 
-        mockMvc.perform(put("/api/v1/products/" + productUUID)
+        mockMvc.perform(put(String.format("/api/v1/products/%s", productUUID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").exists())
                 .andExpect(jsonPath("$.detail").value("Validation failed: categoryId: Category id is required"))
-                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products/" + productUUID));
+                .andExpect(jsonPath("$.instance").value(String.format("uri=/api/v1/products/%s", productUUID)));
     }
 
     @Test
@@ -264,7 +264,7 @@ class ProductControllerTest {
     void deleteProduct_withValidId_shouldReturn204() {
         Mockito.doNothing().when(productService).deleteProduct(productUUID);
 
-        mockMvc.perform(delete("/api/v1/products/" + productUUID))
+        mockMvc.perform(delete(String.format("/api/v1/products/%s", productUUID)))
                 .andExpect(status().isNoContent());
     }
 
@@ -274,7 +274,7 @@ class ProductControllerTest {
         UUID randUUID = UUID.randomUUID();
         Mockito.doNothing().when(productService).deleteProduct(randUUID);
 
-        mockMvc.perform(delete("/api/v1/products/" + randUUID))
+        mockMvc.perform(delete(String.format("/api/v1/products/%s", randUUID)))
                 .andExpect(status().isNoContent());
     }
 }
