@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cosmocats.domain.CatInfo;
 import com.example.cosmocats.dto.CatInfoDto;
-import com.example.cosmocats.featuretoggle.FeatureToggles;
-import com.example.cosmocats.featuretoggle.annotation.FeatureToggle;
 import com.example.cosmocats.mapper.CatInfoMapper;
 import com.example.cosmocats.service.CosmoCatService;
+import com.example.featuretoggle.FeatureToggles;
+import com.example.featuretoggle.annotation.FeatureToggle;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

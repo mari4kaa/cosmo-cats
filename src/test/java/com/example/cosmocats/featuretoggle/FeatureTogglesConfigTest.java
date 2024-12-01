@@ -3,7 +3,7 @@ package com.example.cosmocats.featuretoggle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.example.cosmocats.featuretoggle.config.FeatureTogglesConfig;
+import com.example.featuretoggle.config.FeatureTogglesConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 
