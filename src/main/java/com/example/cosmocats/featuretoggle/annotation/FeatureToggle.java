@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 import com.example.cosmocats.featuretoggle.FeatureToggles;
 
-@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface FeatureToggle {
 
     FeatureToggles value();
