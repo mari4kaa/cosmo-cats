@@ -1,4 +1,4 @@
-package com.example.featuretoggle.config;
+package com.example.cosmocats.featuretoggle.config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Configuration
-@ConfigurationProperties(prefix = "feature.toggles")
+@ConfigurationProperties(prefix = "application.feature")
 public class FeatureTogglesConfig {
     private Map<String, Boolean> toggles = new HashMap<>();
 

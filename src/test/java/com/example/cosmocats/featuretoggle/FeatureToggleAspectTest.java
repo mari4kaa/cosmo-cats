@@ -1,12 +1,13 @@
-package com.example.featuretoggle;
+package com.example.cosmocats.featuretoggle;
 
-import com.example.featuretoggle.annotation.FeatureToggle;
-import com.example.featuretoggle.aspect.FeatureToggleAspect;
-import com.example.featuretoggle.exceptions.FeatureNotAvailableException;
-import com.example.featuretoggle.service.FeatureToggleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
+
+import com.example.cosmocats.featuretoggle.annotation.FeatureToggle;
+import com.example.cosmocats.featuretoggle.aspect.FeatureToggleAspect;
+import com.example.cosmocats.featuretoggle.exceptions.FeatureNotAvailableException;
+import com.example.cosmocats.featuretoggle.service.FeatureToggleService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
