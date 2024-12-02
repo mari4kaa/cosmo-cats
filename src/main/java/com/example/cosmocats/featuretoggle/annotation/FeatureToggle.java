@@ -1,12 +1,15 @@
-package com.example.featuretoggle.annotation;
+package com.example.cosmocats.featuretoggle.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+import com.example.cosmocats.featuretoggle.FeatureToggles;
+
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
 public @interface FeatureToggle {
-    String feature();
+
+    FeatureToggles value();
 }

@@ -43,8 +43,7 @@ public class ProductService {
             // Convert saved entity back to DTO
             return productMapper.entityToDto(savedEntity);
         } catch (Exception e) {
-            log.error("Failed to create product: {}", e.getMessage());
-            throw new ProductCreationException("Failed to create product: " + e.getMessage());
+            throw new ProductCreationException(String.format("Failed to create product: %s", e.getMessage()));
         }
     }
 
@@ -83,8 +82,7 @@ public class ProductService {
                 })
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
         } catch (Exception e) {
-            log.error("Failed to update product with ID {}: {}", id, e.getMessage());
-            throw new ProductUpdateException("Failed to update product: " + e.getMessage());
+            throw new ProductUpdateException(String.format("Failed to update product: %s", e.getMessage()));
         }
     }
 
