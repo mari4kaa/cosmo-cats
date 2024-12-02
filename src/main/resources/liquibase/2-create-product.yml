@@ -47,4 +47,5 @@ databaseChangeLog:
             tableName: product
             indexName: idx_product_name
             columns:
-              - name
+              - column:
+                  name: name
