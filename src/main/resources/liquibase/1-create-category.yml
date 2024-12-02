@@ -26,4 +26,5 @@ databaseChangeLog:
             tableName: category
             indexName: idx_category_name
             columns:
-              - name
+              - column:
+                  name: name

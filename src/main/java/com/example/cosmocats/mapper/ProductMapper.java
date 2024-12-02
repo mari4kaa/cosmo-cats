@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
 import com.example.cosmocats.domain.Product;
@@ -24,26 +25,37 @@ public interface ProductMapper {
     @Mapping(target = "category.id", source = "categoryId")
     Product dtoToProduct(ProductDto productDto);
 
-    @Mapping(target = "id", expression = "java(UUID.randomUUID())")
-    @Mapping(target = "categoryId", source = "category.id")
-    ProductDto entityToDto(ProductEntity productEntity);
-
-    @Mapping(target = "category.id", source = "categoryId")
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "id", expression = "java(uuidToLong(productDto.getId()))")
+    @Mapping(target = "category.id", source = "categoryId", qualifiedByName = "mapCategoryId")
     ProductEntity dtoToEntity(ProductDto productDto);
 
+    @Mapping(target = "id", expression = "java(longToUuid(productEntity.getId()))")
+    @Mapping(target = "categoryId", source = "category.id", qualifiedByName = "mapCategoryUUID")
+    ProductDto entityToDto(ProductEntity productEntity);
+
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "category.id", source = "categoryId")
+    @Mapping(target = "category.id", source = "categoryId", qualifiedByName = "mapCategoryId")
     void updateEntityFromDto(ProductDto productDto, @MappingTarget ProductEntity productEntity);
 
-    List<ProductDto> EntitiesToDtos(List<ProductEntity> products);
-    List<ProductEntity> dtosToEntities(List<ProductDto> productDtos);
-
+    @Named("mapCategoryId")
     default Long mapCategoryId(UUID categoryId) {
         return categoryId != null ? categoryId.getMostSignificantBits() : null;
     }
 
+    @Named("mapCategoryUUID")
     default UUID mapCategoryUUID(Long categoryId) {
-        return categoryId != null ? new UUID(categoryId, 0) : null;
+        return categoryId != null ? new UUID(categoryId, 0L) : null;
     }
+
+    default Long uuidToLong(UUID uuid) {
+        return uuid != null ? uuid.getMostSignificantBits() : null;
+    }
+
+    default UUID longToUuid(Long id) {
+        return id != null ? new UUID(id, 0L) : null;
+    }
+
+    List<ProductDto> entitiesToDtos(List<ProductEntity> products);
+    List<ProductEntity> dtosToEntities(List<ProductDto> productDtos);
+    
 }

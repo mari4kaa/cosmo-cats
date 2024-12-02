@@ -26,7 +26,7 @@ spring:
       max-lifetime: 1800000
       pool-name: galactic-market
   liquibase:
-    change-log: classpath:liquibase/changelog.yaml
+    change-log: classpath:liquibase/changelog.yml
     enabled: true
 
 feature:
