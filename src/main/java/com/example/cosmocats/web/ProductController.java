@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.example.cosmocats.web.exception.ProductNotFoundException;
-import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
-import com.example.cosmocats.entities.ProductEntity;
-import com.example.cosmocats.mapper.ProductMapper;
 import com.example.cosmocats.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProductController {
     private final ProductService productService;
-    private final ProductMapper productMapper;
 
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
@@ -35,7 +31,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProductDto);
         } catch (Exception e) {
             log.error("Error creating product: {}", e.getMessage());
-            throw e; // Let global exception handler manage the response
+            throw e;
         }
     }
 

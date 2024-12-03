@@ -29,8 +29,8 @@ spring:
     change-log: classpath:liquibase/changelog.yml
     enabled: true
 
-feature:
-  cosmoCats:
-    enabled: true
-  kittyProducts:
-    enabled: false
+application:
+  feature:
+    toggles:
+      cosmoCats: true
+      kittyProducts: false

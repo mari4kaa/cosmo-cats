@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j // If using Lombok logging
+@Slf4j
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
@@ -29,18 +29,12 @@ public class ProductService {
     @Transactional
     public ProductDto createProduct(ProductDto productDto) {
         try {
-            // Optional: Add validation
-            validateProductDto(productDto);
-
-            // Convert DTO to entity
             ProductEntity productEntity = productMapper.dtoToEntity(productDto);
             
-            // Save the entity
             ProductEntity savedEntity = productRepository.save(productEntity);
             
             log.info("Product created successfully with ID: {}", savedEntity.getId());
             
-            // Convert saved entity back to DTO
             return productMapper.entityToDto(savedEntity);
         } catch (Exception e) {
             throw new ProductCreationException(String.format("Failed to create product: %s", e.getMessage()));
@@ -63,9 +57,6 @@ public class ProductService {
     @Transactional
     public ProductDto updateProduct(Long id, ProductDto updatedProductDto) {
         try {
-            // Optional: Add validation
-            validateProductDto(updatedProductDto);
-
             return productRepository.findById(id)
                 .map(existingEntity -> {
                     // Update existing entity with new data
@@ -100,18 +91,5 @@ public class ProductService {
             log.error("Failed to delete product with ID {}: {}", id, e.getMessage());
             throw new ProductDeletionException("Failed to delete product: " + e.getMessage());
         }
-    }
-
-    // Optional validation method
-    private void validateProductDto(ProductDto productDto) {
-        // Add your validation logic here
-        // For example:
-        if (productDto == null) {
-            throw new IllegalArgumentException("Product cannot be null");
-        }
-        if (!StringUtils.hasLength(productDto.getName())) {
-            throw new IllegalArgumentException("Product name cannot be empty");
-        }
-        // Add more validation as needed
     }
 }
