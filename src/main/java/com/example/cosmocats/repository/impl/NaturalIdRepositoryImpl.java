@@ -1,4 +1,4 @@
-package com.example.cosmocats.impl;
+package com.example.cosmocats.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import java.io.Serializable;

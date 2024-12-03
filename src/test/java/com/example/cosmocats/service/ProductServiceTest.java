@@ -1,6 +1,5 @@
 package com.example.cosmocats.service;
 
-import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.entities.ProductEntity;
 import com.example.cosmocats.mapper.ProductMapper;

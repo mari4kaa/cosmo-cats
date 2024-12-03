@@ -28,6 +28,11 @@ public class ProductService {
 
     @Transactional
     public ProductDto createProduct(ProductDto productDto) {
+
+        if (productRepository.existsByName(productDto.getName())) {
+            throw new ProductCreationException(String.format("Product with name %s already exists.", productDto.getName()));
+        }
+
         try {
             ProductEntity productEntity = productMapper.dtoToEntity(productDto);
             
@@ -59,16 +64,13 @@ public class ProductService {
         try {
             return productRepository.findById(id)
                 .map(existingEntity -> {
-                    // Update existing entity with new data
                     ProductEntity updatedEntity = productMapper.dtoToEntity(updatedProductDto);
                     updatedEntity.setId(id);
-                    
-                    // Save the updated entity
+
                     ProductEntity savedEntity = productRepository.save(updatedEntity);
                     
                     log.info("Product updated successfully with ID: {}", id);
-                    
-                    // Convert and return updated DTO
+
                     return productMapper.entityToDto(savedEntity);
                 })
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));

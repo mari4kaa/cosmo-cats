@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.example.cosmocats.impl.NaturalIdRepositoryImpl;
+import com.example.cosmocats.repository.impl.NaturalIdRepositoryImpl;
 
 @Configuration
 @EnableJpaAuditing

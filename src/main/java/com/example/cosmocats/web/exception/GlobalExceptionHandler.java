@@ -10,6 +10,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.example.cosmocats.featuretoggle.exceptions.FeatureNotAvailableException;
+import com.example.cosmocats.service.exception.ProductCreationException;
 
 import jakarta.validation.ConstraintViolationException;
 import java.net.URI;
@@ -74,4 +75,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleFeatureNotAvailable(FeatureNotAvailableException ex) {
         return ResponseEntity.notFound().build();
     }
+
+    @ExceptionHandler(ProductCreationException.class)
+    public ResponseEntity<ProblemDetail> handleProductCreationException(ProductCreationException ex, WebRequest request) {
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        error.setTitle("Bad Request");
+        error.setDetail(String.format("Validation failed: %s", ex.getMessage()));
+        error.setInstance(URI.create(request.getDescription(false)));
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
 }
