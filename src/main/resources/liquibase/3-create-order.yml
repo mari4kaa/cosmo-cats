@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: maksym
+      changes:
+        - createSequence:
+            sequenceName: order_id_seq
+            startValue: 1
+            incrementBy: 1
+
+        - createTable:
+            tableName: order
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: price
+                  type: FLOAT
+                  constraints:
+                    nullable: false

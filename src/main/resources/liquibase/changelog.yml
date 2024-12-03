@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/1-create-category.yml
+  - include:
+      file: liquibase/2-create-product.yml
+  - include:
+      file: liquibase/3-create-order.yml
+  - include:
+      file: liquibase/4-create-order-entry.yml
