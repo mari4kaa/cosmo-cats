@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 import com.example.cosmocats.web.exception.ProductNotFoundException;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
+import com.example.cosmocats.service.exception.ProductCreationException;
+import com.example.cosmocats.service.exception.ProductDeletionException;
+import com.example.cosmocats.service.exception.ProductUpdateException;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +33,7 @@ public class ProductController {
             
             log.info("Product created successfully with ID: {}", createdProductDto.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdProductDto);
-        } catch (Exception e) {
+        } catch (ProductCreationException e) {
             log.error("Error creating product: {}", e.getMessage());
             throw e;
         }
@@ -75,7 +79,7 @@ public class ProductController {
             
             log.info("Product updated successfully: {}", updatedProductDto);
             return ResponseEntity.ok(updatedProductDto);
-        } catch (Exception e) {
+        } catch (ProductUpdateException | ProductNotFoundException e) {
             log.error("Error updating product with ID {}: {}", id, e.getMessage());
             throw e;
         }
@@ -89,7 +93,7 @@ public class ProductController {
             
             log.info("Product deleted successfully with ID: {}", id);
             return ResponseEntity.noContent().build();
-        } catch (Exception e) {
+        } catch (ProductDeletionException e) {
             log.error("Error deleting product with ID {}: {}", id, e.getMessage());
             throw e;
         }

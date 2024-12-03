@@ -1,11 +1,11 @@
 package com.example.cosmocats.service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.entities.ProductEntity;
@@ -28,18 +28,14 @@ public class ProductService {
 
     @Transactional
     public ProductDto createProduct(ProductDto productDto) {
-
         if (productRepository.existsByName(productDto.getName())) {
-            throw new ProductCreationException(String.format("Product with name %s already exists.", productDto.getName()));
+            throw new ProductCreationException(String.format("Product with name '%s' already exists.", productDto.getName()));
         }
 
         try {
             ProductEntity productEntity = productMapper.dtoToEntity(productDto);
-            
             ProductEntity savedEntity = productRepository.save(productEntity);
-            
             log.info("Product created successfully with ID: {}", savedEntity.getId());
-            
             return productMapper.entityToDto(savedEntity);
         } catch (Exception e) {
             throw new ProductCreationException(String.format("Failed to create product: %s", e.getMessage()));
@@ -66,14 +62,11 @@ public class ProductService {
                 .map(existingEntity -> {
                     ProductEntity updatedEntity = productMapper.dtoToEntity(updatedProductDto);
                     updatedEntity.setId(id);
-
                     ProductEntity savedEntity = productRepository.save(updatedEntity);
-                    
                     log.info("Product updated successfully with ID: {}", id);
-
                     return productMapper.entityToDto(savedEntity);
                 })
-                .orElseThrow(() -> new ProductNotFoundException("Product with id " + id + " not found"));
+                .orElseThrow(() -> new ProductNotFoundException(String.format("Product with id '%d' not found", id)));
         } catch (Exception e) {
             throw new ProductUpdateException(String.format("Failed to update product: %s", e.getMessage()));
         }
@@ -83,15 +76,15 @@ public class ProductService {
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             log.error("Attempt to delete non-existent product with ID: {}", id);
-            throw new ProductNotFoundException("Product with id " + id + " not found");
+            throw new ProductNotFoundException(String.format("Product with id '%d' not found", id));
         }
         
         try {
             productRepository.deleteById(id);
             log.info("Product deleted successfully with ID: {}", id);
         } catch (Exception e) {
-            log.error("Failed to delete product with ID {}: {}", id, e.getMessage());
-            throw new ProductDeletionException("Failed to delete product: " + e.getMessage());
+            log.error(String.format("Failed to delete product with ID %d: %s", id, e.getMessage()));
+            throw new ProductDeletionException(String.format("Failed to delete product: %s", e.getMessage()));
         }
     }
 }
