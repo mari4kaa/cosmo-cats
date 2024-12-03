@@ -9,6 +9,6 @@ public class ContainsWordValidator extends BaseContainsValidator<ContainsWord> {
     public void initialize(ContainsWord constraintAnnotation) {
         words = Arrays.asList(constraintAnnotation.value());
         ignoreCase = constraintAnnotation.ignoreCase();
-        error = "String should contain at least one of next words: " + String.join(", ", words);
+        error = String.format("String should contain at least one of next words: %s", String.join(", ", words));
     }
 }
