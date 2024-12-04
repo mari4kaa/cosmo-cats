@@ -68,7 +68,8 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
-    void testCreateProductValid() throws Exception {
+    @SneakyThrows
+    void testCreateProductValid() {
         ProductDto validProduct = ProductDto.builder()
                 .id(UUID.randomUUID())
                 .categoryId(UUID.randomUUID())

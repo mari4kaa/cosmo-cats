@@ -75,8 +75,7 @@ public class ProductService {
     @Transactional
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
-            log.error("Attempt to delete non-existent product with ID: {}", id);
-            throw new ProductNotFoundException(String.format("Product with id '%d' not found", id));
+            return;
         }
         
         try {

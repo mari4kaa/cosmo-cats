@@ -22,23 +22,19 @@ import static org.mockito.Mockito.*;
 class ProductServiceTest {
 
     private ProductService productService;
-    private ProductRepository productRepository; // Mocked
-    private ProductMapper productMapper; // Real Mapper
+    private ProductRepository productRepository;
+    private ProductMapper productMapper;
 
     private ProductDto testProductDto;
 
     @BeforeEach
     void setUp() {
-        // Initialize the real mapper
         productMapper = Mappers.getMapper(ProductMapper.class);
 
-        // Mock the repository
         productRepository = mock(ProductRepository.class);
 
-        // Create the service using real mapper and mocked repository
         productService = new ProductService(productRepository, productMapper);
 
-        // Create a test ProductDto
         testProductDto = ProductDto.builder()
                 .id(UUID.randomUUID())
                 .categoryId(UUID.randomUUID())
@@ -164,12 +160,5 @@ class ProductServiceTest {
         productService.deleteProduct(1L);
 
         verify(productRepository, times(1)).deleteById(1L);
-    }
-
-    @Test
-    void deleteProduct_whenProductDoesNotExist_shouldThrowNotFoundException() {
-        when(productRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L));
     }
 }

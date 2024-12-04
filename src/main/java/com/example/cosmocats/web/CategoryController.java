@@ -1,12 +1,15 @@
 package com.example.cosmocats.web;
 
 import com.example.cosmocats.dto.CategoryDto;
+import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.exception.CategoryCreationException;
 import com.example.cosmocats.service.exception.CategoryDeletionException;
 import com.example.cosmocats.service.exception.CategoryNotFoundException;
 import com.example.cosmocats.service.exception.CategoryUpdateException;
+import com.example.cosmocats.web.exception.ProductNotFoundException;
 import com.example.cosmocats.service.CategoryService;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -40,6 +43,35 @@ public class CategoryController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<List<CategoryDto>> getAllProducts() {
+        try {
+            log.info("Fetching all categories");
+            List<CategoryDto> categoryDtos = categoryService.getAllCategories();
+            
+            log.info("Retrieved {} categories", categoryDtos.size());
+            return ResponseEntity.ok(categoryDtos);
+        } catch (Exception e) {
+            log.error("Error retrieving categories: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    @GetMapping("/{categoryId}")
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable UUID categoryId) {
+        log.info("Attempting to retrieve category with ID: '{}'", categoryId);
+        try {
+            CategoryDto categoryDto = categoryService.getCategoryById(categoryId.getMostSignificantBits())
+                                        .orElseThrow(() -> new CategoryNotFoundException(categoryId.toString()));
+
+            log.info("Category retrieved successfully with ID: '{}'", categoryId);
+            return new ResponseEntity<>(categoryDto, HttpStatus.OK);
+        } catch (CategoryNotFoundException e) {
+            log.error("Category with ID '{}' not found: {}", categoryId, e.getMessage());
+            throw e;
+        }
+    }
+
     @PutMapping("/{categoryId}")
     public ResponseEntity<CategoryDto> updateCategory(@PathVariable UUID categoryId, @RequestBody @Valid CategoryDto categoryDto) {
         log.info("Attempting to update category with ID: '{}'", categoryId);
@@ -63,19 +95,6 @@ public class CategoryController {
         } catch (CategoryDeletionException | CategoryNotFoundException e) {
             log.error("Failed to delete category with ID '{}': {}", categoryId, e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable UUID categoryId) {
-        log.info("Attempting to retrieve category with ID: '{}'", categoryId);
-        try {
-            CategoryDto categoryDto = categoryService.getCategory(categoryId.getMostSignificantBits());
-            log.info("Category retrieved successfully with ID: '{}'", categoryId);
-            return new ResponseEntity<>(categoryDto, HttpStatus.OK);
-        } catch (CategoryNotFoundException e) {
-            log.error("Category with ID '{}' not found: {}", categoryId, e.getMessage());
-            throw e;
         }
     }
 }

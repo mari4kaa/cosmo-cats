@@ -1,7 +1,6 @@
 package com.example.cosmocats.controller;
 
 import com.example.cosmocats.domain.Category;
-import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
 import com.example.cosmocats.validation.enums.CosmicOrigins;

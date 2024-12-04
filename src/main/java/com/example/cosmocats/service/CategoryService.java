@@ -1,18 +1,22 @@
 package com.example.cosmocats.service;
 
 import com.example.cosmocats.dto.CategoryDto;
+import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.entities.CategoryEntity;
 import com.example.cosmocats.service.exception.CategoryCreationException;
 import com.example.cosmocats.service.exception.CategoryDeletionException;
 import com.example.cosmocats.service.exception.CategoryNotFoundException;
 import com.example.cosmocats.service.exception.CategoryUpdateException;
+import com.example.cosmocats.service.exception.ProductCreationException;
 import com.example.cosmocats.mapper.CategoryMapper;
 import com.example.cosmocats.repository.CategoryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,6 +46,19 @@ public class CategoryService {
         return categoryMapper.entityToDto(categoryEntity);
     }
 
+    @Transactional(readOnly = true)
+    public List<CategoryDto> getAllCategories() {
+        return categoryRepository.findAll().stream()
+            .map(categoryMapper::entityToDto)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CategoryDto> getCategoryById(Long id) {
+        return categoryRepository.findById(id)
+            .map(categoryMapper::entityToDto);
+    }
+
     @Transactional
     public CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto) {
         log.info("Attempting to update category with ID '{}'", categoryId);
@@ -68,25 +85,17 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategory(Long categoryId) {
-        log.info("Attempting to delete category with ID '{}'", categoryId);
-        Optional<CategoryEntity> existingCategory = categoryRepository.findById(categoryId);
-        
+
+        if (!categoryRepository.existsById(categoryId)) {
+            return;
+        }
+
         try {
-            categoryRepository.delete(existingCategory.get());
+            categoryRepository.deleteById(categoryId);
             log.info("Category with ID '{}' deleted successfully", categoryId);
         } catch (Exception e) {
             log.error("Failed to delete category with ID '{}': {}", categoryId, e.getMessage());
             throw new CategoryDeletionException(String.format("Failed to delete category with ID '%d'.", categoryId));
         }
-    }
-
-    public CategoryDto getCategory(Long categoryId) {
-        log.info("Retrieving category with ID '{}'", categoryId);
-        return categoryRepository.findById(categoryId)
-                .map(categoryMapper::entityToDto)
-                .orElseThrow(() -> {
-                    log.error("Category with ID '{}' not found.", categoryId);
-                    return new CategoryNotFoundException(String.format("Category with ID '%d' not found.", categoryId));
-                });
     }
 }
