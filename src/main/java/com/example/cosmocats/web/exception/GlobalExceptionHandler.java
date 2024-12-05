@@ -113,6 +113,54 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleOrderNotFound(
+            OrderNotFoundException ex, WebRequest request) {
+        
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        error.setTitle("Not Found");
+        error.setDetail(ex.getMessage());
+        error.setInstance(URI.create(request.getDescription(false)));
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(OrderCreationException.class)
+    public ResponseEntity<ProblemDetail> handleOrderCreationException(
+            OrderCreationException ex, WebRequest request) {
+        
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        error.setTitle("Bad Request");
+        error.setDetail(String.format("Validation failed: %s", ex.getMessage()));
+        error.setInstance(URI.create(request.getDescription(false)));
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(OrderUpdateException.class)
+    public ResponseEntity<ProblemDetail> handleOrderUpdateException(
+            OrderUpdateException ex, WebRequest request) {
+        
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        error.setTitle("Bad Request");
+        error.setDetail(String.format("Update failed: %s", ex.getMessage()));
+        error.setInstance(URI.create(request.getDescription(false)));
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(OrderDeletionException.class)
+    public ResponseEntity<ProblemDetail> handleOrderDeletionException(
+            OrderDeletionException ex, WebRequest request) {
+        
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        error.setTitle("Bad Request");
+        error.setDetail(String.format("Deletion failed: %s", ex.getMessage()));
+        error.setInstance(URI.create(request.getDescription(false)));
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationErrors(
             MethodArgumentNotValidException ex, WebRequest request) {
