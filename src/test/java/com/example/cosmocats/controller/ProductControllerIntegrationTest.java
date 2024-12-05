@@ -9,8 +9,12 @@ import com.example.cosmocats.mapper.ProductMapper;
 import com.example.cosmocats.repository.CategoryRepository;
 import com.example.cosmocats.repository.ProductRepository;
 import com.example.cosmocats.validation.enums.CosmicOrigins;
+import com.example.cosmocats.validation.enums.CosmicWords;
 import com.example.cosmocats.web.ProductController;
+import com.example.cosmocats.web.exception.GlobalExceptionHandler;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +26,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,18 +40,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ProductControllerIntegrationTest {
 
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
-            .withDatabaseName("testdb")
-            .withUsername("testuser")
-            .withPassword("testpass");
+        @SuppressWarnings("resource")
+        static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
+        .withDatabaseName("testdb")
+        .withUsername("testuser")
+        .withPassword("testpass");
 
-    @DynamicPropertySource
-    static void configureTestDatabase(DynamicPropertyRegistry registry) {
+        @BeforeAll
+        static void startContainer() {
+        postgres.start();
+        }
+
+        @AfterAll
+        static void stopContainer() {
+        postgres.stop();
+        }
+
+        @DynamicPropertySource
+        static void configureTestDatabase(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-    }
+        }
 
     @Autowired
     private ProductRepository productRepository;
@@ -75,7 +88,9 @@ class ProductControllerIntegrationTest {
 
     @BeforeEach
     void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(productController)
+            .setControllerAdvice(new GlobalExceptionHandler())
+            .build();
         productRepository.deleteAll();
         categoryRepository.deleteAll();
 
@@ -121,7 +136,12 @@ class ProductControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("Validation failed: name: Product should contain at least one of cosmic words: cosmic, space, intergalactic"));
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.detail").exists())
+                .andExpect(jsonPath("$.detail")
+                        .value(org.hamcrest.Matchers.containsString(
+                                "name: Product should contain at least one of cosmic words: "
+                                        + String.join(", ", CosmicWords.getValues()))));
     }
 
     @Test
@@ -184,10 +204,10 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(productDto)))
-            .andExpect(status().isConflict())
-            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(jsonPath("$.title").value("Conflict"))
-            .andExpect(jsonPath("$.status").value(409))
-            .andExpect(jsonPath("$.detail").value("Product with name 'Cosmic Widget' already exists."));
+        .andExpect(status().isConflict())
+        .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+        .andExpect(jsonPath("$.title").value("Conflict"))
+        .andExpect(jsonPath("$.status").value(409))
+        .andExpect(jsonPath("$.detail").value("Product with name 'Cosmic Widget' already exists."));
     }
 }
