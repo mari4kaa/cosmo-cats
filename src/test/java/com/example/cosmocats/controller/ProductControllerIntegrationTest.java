@@ -1,8 +1,11 @@
 package com.example.cosmocats.controller;
 
+import com.example.cosmocats.dto.CategoryDto;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.entities.CategoryEntity;
 import com.example.cosmocats.entities.ProductEntity;
+import com.example.cosmocats.mapper.CategoryMapper;
+import com.example.cosmocats.mapper.ProductMapper;
 import com.example.cosmocats.repository.CategoryRepository;
 import com.example.cosmocats.repository.ProductRepository;
 import com.example.cosmocats.validation.enums.CosmicOrigins;
@@ -11,6 +14,7 @@ import com.example.cosmocats.web.ProductController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -28,10 +32,9 @@ import lombok.SneakyThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.UUID;
-
 @SpringBootTest
 @Testcontainers
+@AutoConfigureMockMvc
 class ProductControllerIntegrationTest {
 
     @Container
@@ -54,7 +57,16 @@ class ProductControllerIntegrationTest {
     private ProductController productController;
 
     @Autowired
+    private ProductMapper productMapper;
+
+    @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private CategoryMapper categoryMapper;
+
+    private CategoryDto categoryDto;
+    private CategoryEntity categoryEntity;
 
     private MockMvc mockMvc;
 
@@ -65,14 +77,21 @@ class ProductControllerIntegrationTest {
     void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
         productRepository.deleteAll();
+        categoryRepository.deleteAll();
+
+        categoryEntity = CategoryEntity.builder()
+            .name("Mock Category")
+            .build();
+
+        categoryRepository.save(categoryEntity);
+        categoryDto = categoryMapper.entityToDto(categoryEntity);
     }
 
     @Test
     @SneakyThrows
     void testCreateProductValid() {
         ProductDto validProduct = ProductDto.builder()
-                .id(UUID.randomUUID())
-                .categoryId(UUID.randomUUID())
+                .categoryId(categoryDto.getId())
                 .name("Cosmic Widget")
                 .description("A widget that is truly cosmic.")
                 .origin("Proxima")
@@ -91,8 +110,7 @@ class ProductControllerIntegrationTest {
     @SneakyThrows
     void testCreateProductInvalidName() {
         ProductDto invalidProduct = ProductDto.builder()
-                .id(UUID.randomUUID())
-                .categoryId(UUID.randomUUID())
+                .categoryId(categoryDto.getId())
                 .name("Widget") // missing cosmic word
                 .description("An ordinary widget.")
                 .origin("Mars")
@@ -100,18 +118,17 @@ class ProductControllerIntegrationTest {
                 .build();
 
         mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidProduct)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("Product should contain at least one of cosmic words: cosmic, space, intergalactic"));
+                .andExpect(jsonPath("$.detail").value("Validation failed: name: Product should contain at least one of cosmic words: cosmic, space, intergalactic"));
     }
 
     @Test
     @SneakyThrows
     void testCreateProductInvalidOrigin() {
         ProductDto invalidProduct = ProductDto.builder()
-                .id(UUID.randomUUID())
-                .categoryId(UUID.randomUUID())
+                .categoryId(categoryDto.getId())
                 .name("Cosmic Widget")
                 .description("A widget that is truly cosmic.")
                 .origin("Unknown") // not a cosmic origin
@@ -119,8 +136,8 @@ class ProductControllerIntegrationTest {
                 .build();
 
         mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidProduct)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").exists())
@@ -134,8 +151,7 @@ class ProductControllerIntegrationTest {
     @SneakyThrows
     void testCreateProductNegativePrice() {
         ProductDto invalidProduct = ProductDto.builder()
-                .id(UUID.randomUUID())
-                .categoryId(UUID.randomUUID())
+                .categoryId(categoryDto.getId())
                 .name("Intergalactic Widget")
                 .description("A widget that is intergalactic.")
                 .origin("Earth")
@@ -154,34 +170,24 @@ class ProductControllerIntegrationTest {
     @Test
     @SneakyThrows
     void testCreateProductWithDuplicateName() {
-        UUID categoryId = UUID.randomUUID();
-        CategoryEntity categoryEntity = CategoryEntity.builder()
-                .id(categoryId.getMostSignificantBits())
-                .name("Cosmic Tools")
-                .build();
-        categoryRepository.save(categoryEntity);
-
         ProductDto productDto = ProductDto.builder()
-                .id(UUID.randomUUID())
-                .categoryId(categoryId)
-                .name("Cosmic Widget")
-                .description("A widget of cosmic quality.")
-                .origin("Mars")
-                .price(15.99f)
-                .build();
+            .categoryId(categoryDto.getId())
+            .name("Cosmic Widget")
+            .description("A widget of cosmic quality.")
+            .origin("Mars")
+            .price(15.99f)
+            .build();
 
-        productRepository.save(ProductEntity.builder()
-                .category(categoryEntity)
-                .name(productDto.getName())
-                .description(productDto.getDescription())
-                .origin(productDto.getOrigin())
-                .price(productDto.getPrice())
-                .build());
+        ProductEntity productEntity = productMapper.dtoToEntity(productDto);
+        productRepository.save(productEntity);
 
         mockMvc.perform(post("/api/v1/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(productDto)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.detail").value("Validation failed: Product with name Cosmic Widget already exists."));
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(productDto)))
+            .andExpect(status().isConflict())
+            .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+            .andExpect(jsonPath("$.title").value("Conflict"))
+            .andExpect(jsonPath("$.status").value(409))
+            .andExpect(jsonPath("$.detail").value("Product with name 'Cosmic Widget' already exists."));
     }
 }
