@@ -14,7 +14,7 @@ public class ProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_id_seq")
-    @SequenceGenerator(name = "product_id_seq", sequenceName = "product_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "product_id_seq", sequenceName = "product_id_seq")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

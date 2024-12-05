@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Value;
@@ -12,7 +11,6 @@ import lombok.Value;
 @Value
 @Builder
 public class OrderDto {
-    @NotNull(message = "Id is required")
     UUID id;
 
     @NotEmpty(message = "Order must contain at least one entry")

@@ -45,12 +45,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleProductCreationException(
             ProductCreationException ex, WebRequest request) {
         
-        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        error.setTitle("Bad Request");
-        error.setDetail(String.format("Validation failed: %s", ex.getMessage()));
-        error.setInstance(URI.create(request.getDescription(false)));
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Conflict");
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setInstance(URI.create(request.getDescription(false)));
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
     }
 
     @ExceptionHandler(CategoryCreationException.class)

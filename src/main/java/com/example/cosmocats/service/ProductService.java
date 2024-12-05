@@ -33,14 +33,10 @@ public class ProductService {
             throw new ProductCreationException(String.format("Product with name '%s' already exists.", productDto.getName()));
         }
 
-        try {
-            ProductEntity productEntity = productMapper.dtoToEntity(productDto);
-            ProductEntity savedEntity = productRepository.save(productEntity);
-            log.info("Product created successfully with ID: {}", savedEntity.getId());
-            return productMapper.entityToDto(savedEntity);
-        } catch (Exception e) {
-            throw new ProductCreationException(String.format("Failed to create product: %s", e.getMessage()));
-        }
+        ProductEntity productEntity = productMapper.dtoToEntity(productDto);
+        ProductEntity savedEntity = productRepository.save(productEntity);
+        log.info("Product created successfully with ID: {}", savedEntity.getId());
+        return productMapper.entityToDto(savedEntity);
     }
 
     @Transactional(readOnly = true)

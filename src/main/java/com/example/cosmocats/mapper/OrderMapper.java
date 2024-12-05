@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import com.example.cosmocats.domain.order.Order;
 import com.example.cosmocats.domain.order.OrderEntry;
@@ -17,7 +16,7 @@ import com.example.cosmocats.entities.ProductEntity;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
-    
+
     @Mapping(target = "entryIds", source = "entries")
     OrderDto orderToDto(Order order);
 

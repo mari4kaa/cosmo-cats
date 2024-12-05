@@ -34,15 +34,11 @@ public class OrderService {
         if (orderRepository.existsById(orderDto.getId().getMostSignificantBits())) {
             throw new OrderCreationException(String.format("Order with id '%s' already exists.", orderDto.getId()));
         }
-    
-        try {
-            OrderEntity orderEntity = orderMapper.dtoToEntity(orderDto);
-            OrderEntity savedEntity = orderRepository.save(orderEntity);
-            log.info("Order created successfully with ID: {}", savedEntity.getId());
-            return orderMapper.entityToDto(savedEntity);
-        } catch (Exception e) {
-            throw new OrderCreationException(String.format("Failed to create order: %s", e.getMessage()));
-        }
+
+        OrderEntity orderEntity = orderMapper.dtoToEntity(orderDto);
+        OrderEntity savedEntity = orderRepository.save(orderEntity);
+        log.info("Order created successfully with ID: {}", savedEntity.getId());
+        return orderMapper.entityToDto(savedEntity);
     }
 
     @Transactional(readOnly = true)

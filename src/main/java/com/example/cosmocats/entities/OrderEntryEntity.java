@@ -13,7 +13,7 @@ public class OrderEntryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_entry_id_seq")
-    @SequenceGenerator(name = "order_entry_id_seq", sequenceName = "order_entry_id_seq", allocationSize = 1)
+    @SequenceGenerator(name = "order_entry_id_seq", sequenceName = "order_entry_id_seq")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

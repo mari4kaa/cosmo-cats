@@ -15,7 +15,6 @@ import lombok.Value;
 @Value
 @Builder
 public class ProductDto {
-    @NotNull(message = "Id is required")
     UUID id;
 
     @NotNull(message = "Category id is required")

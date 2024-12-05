@@ -66,13 +66,6 @@ class OrderServiceTest {
     }
 
     @Test
-    void createOrder_withException_shouldThrowOrderCreationException() {
-        when(orderRepository.save(any(OrderEntity.class))).thenThrow(RuntimeException.class);
-
-        assertThrows(OrderCreationException.class, () -> orderService.createOrder(testOrderDto));
-    }
-
-    @Test
     void getOrderById_whenOrderExists_shouldReturnOrder() {
         OrderEntity testOrderEntity = orderMapper.dtoToEntity(testOrderDto);
         testOrderEntity.setId(orderId);

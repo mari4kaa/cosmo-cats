@@ -77,13 +77,6 @@ class ProductServiceTest {
     }
 
     @Test
-    void createProduct_withException_shouldThrowProductCreationException() {
-        when(productRepository.save(any(ProductEntity.class))).thenThrow(RuntimeException.class);
-
-        assertThrows(ProductCreationException.class, () -> productService.createProduct(testProductDto));
-    }
-
-    @Test
     void getAllProducts_whenProductsExist_shouldReturnProductList() {
         ProductEntity productEntity = productMapper.dtoToEntity(testProductDto);
         when(productRepository.findAll()).thenReturn(List.of(productEntity));

@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import com.example.cosmocats.domain.Category;
 import com.example.cosmocats.dto.CategoryDto;
