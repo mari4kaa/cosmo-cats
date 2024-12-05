@@ -32,7 +32,7 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<CategoryDto> createCategory(@RequestBody @Valid CategoryDto categoryDto) {
-        log.info("Attempting to create category with name: '{}'", categoryDto.getName());
+        log.info("Creating category with name: '{}'", categoryDto.getName());
         try {
             CategoryDto createdCategory = categoryService.createCategory(categoryDto);
             log.info("Category created successfully with ID: '{}'", createdCategory.getId());
@@ -59,9 +59,9 @@ public class CategoryController {
 
     @GetMapping("/{categoryId}")
     public ResponseEntity<CategoryDto> getCategory(@PathVariable UUID categoryId) {
-        log.info("Attempting to retrieve category with ID: '{}'", categoryId);
+        log.info("Retrieving category with ID: '{}'", categoryId);
         try {
-            CategoryDto categoryDto = categoryService.getCategoryById(categoryId.getMostSignificantBits())
+            CategoryDto categoryDto = categoryService.getCategoryById(categoryId)
                                         .orElseThrow(() -> new CategoryNotFoundException(categoryId.toString()));
 
             log.info("Category retrieved successfully with ID: '{}'", categoryId);
@@ -74,9 +74,9 @@ public class CategoryController {
 
     @PutMapping("/{categoryId}")
     public ResponseEntity<CategoryDto> updateCategory(@PathVariable UUID categoryId, @RequestBody @Valid CategoryDto categoryDto) {
-        log.info("Attempting to update category with ID: '{}'", categoryId);
+        log.info("Updating category with ID: '{}'", categoryId);
         try {
-            CategoryDto updatedCategory = categoryService.updateCategory(categoryId.getMostSignificantBits(), categoryDto);
+            CategoryDto updatedCategory = categoryService.updateCategory(categoryId, categoryDto);
             log.info("Category updated successfully with ID: '{}'", categoryId);
             return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
         } catch (CategoryUpdateException | CategoryNotFoundException e) {
@@ -87,9 +87,9 @@ public class CategoryController {
 
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID categoryId) {
-        log.info("Attempting to delete category with ID: '{}'", categoryId);
+        log.info("Deleting category with ID: '{}'", categoryId);
         try {
-            categoryService.deleteCategory(categoryId.getMostSignificantBits());
+            categoryService.deleteCategory(categoryId);
             log.info("Category deleted successfully with ID: '{}'", categoryId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (CategoryDeletionException | CategoryNotFoundException e) {

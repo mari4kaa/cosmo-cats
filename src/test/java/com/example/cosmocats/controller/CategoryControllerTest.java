@@ -52,7 +52,7 @@ class CategoryControllerTest {
     @Test
     @SneakyThrows
     void getCategoryById_withValidId_shouldReturnCategory() {
-        Mockito.when(categoryService.getCategoryById(categoryUUID.getMostSignificantBits()))
+        Mockito.when(categoryService.getCategoryById(categoryUUID))
                 .thenReturn(Optional.of(cosmicCategoryDto));
 
         mockMvc.perform(get("/api/v1/categories/{id}", categoryUUID))
@@ -64,7 +64,7 @@ class CategoryControllerTest {
     @SneakyThrows
     void getCategoryById_withNonExistentId_shouldReturn404() {
         UUID nonExistentUUID = UUID.randomUUID();
-        Mockito.when(categoryService.getCategoryById(nonExistentUUID.getMostSignificantBits())).thenReturn(Optional.empty());
+        Mockito.when(categoryService.getCategoryById(nonExistentUUID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/v1/categories/{id}", nonExistentUUID))
                 .andExpect(status().isNotFound());
@@ -102,7 +102,7 @@ class CategoryControllerTest {
             .name("Galactic Essentials")
             .build();
 
-        Mockito.when(categoryService.updateCategory(Mockito.eq(categoryUUID.getMostSignificantBits()), Mockito.any(CategoryDto.class)))
+        Mockito.when(categoryService.updateCategory(Mockito.eq(categoryUUID), Mockito.any(CategoryDto.class)))
                 .thenReturn(updatedCategoryDto);
 
         mockMvc.perform(put("/api/v1/categories/{id}", categoryUUID)
@@ -115,7 +115,7 @@ class CategoryControllerTest {
     @Test
     @SneakyThrows
     void deleteCategory_withValidId_shouldReturn204() {
-        Mockito.doNothing().when(categoryService).deleteCategory(categoryUUID.getMostSignificantBits());
+        Mockito.doNothing().when(categoryService).deleteCategory(categoryUUID);
 
         mockMvc.perform(delete("/api/v1/categories/{id}", categoryUUID))
                 .andExpect(status().isNoContent());
@@ -125,7 +125,7 @@ class CategoryControllerTest {
     @SneakyThrows
     void deleteProduct_withNonExistentId_shouldReturn204() {
         UUID randUUID = UUID.randomUUID();
-        Mockito.doNothing().when(categoryService).deleteCategory(randUUID.getMostSignificantBits());
+        Mockito.doNothing().when(categoryService).deleteCategory(randUUID);
 
         mockMvc.perform(delete(String.format("/api/v1/categories/%s", randUUID)))
                 .andExpect(status().isNoContent());

@@ -70,7 +70,7 @@ class ProductControllerTest {
     @Test
     @SneakyThrows
     void getProductById_withValidId_shouldReturnProduct() {
-        Mockito.when(productService.getProductById(productUUID.getMostSignificantBits())).thenReturn(Optional.of(validProductDto));
+        Mockito.when(productService.getProductById(productUUID)).thenReturn(Optional.of(validProductDto));
 
         mockMvc.perform(get(String.format("/api/v1/products/%s", productUUID)))
                 .andExpect(status().isOk())
@@ -83,7 +83,7 @@ class ProductControllerTest {
     @SneakyThrows
     void getProductById_withNonExistentId_shouldReturn404() {
         UUID randUUID = UUID.randomUUID();
-        Mockito.when(productService.getProductById(randUUID.getMostSignificantBits())).thenReturn(Optional.empty());
+        Mockito.when(productService.getProductById(randUUID)).thenReturn(Optional.empty());
 
         mockMvc.perform(get(String.format("/api/v1/products/%s", randUUID)))
                 .andExpect(status().isNotFound())
@@ -119,7 +119,7 @@ class ProductControllerTest {
     @Test
     @SneakyThrows
     void updateProduct_withValidUpdatedData_shouldReturn200() {
-        Mockito.when(productService.updateProduct(Mockito.eq(productUUID.getMostSignificantBits()), Mockito.any())).thenReturn(validProductDto);
+        Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProductDto);
         mockMvc.perform(put(String.format("/api/v1/products/%s", productUUID))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validProductDto)))
@@ -251,7 +251,7 @@ class ProductControllerTest {
     @Test
     @SneakyThrows
     void deleteProduct_withValidId_shouldReturn204() {
-        Mockito.doNothing().when(productService).deleteProduct(productUUID.getMostSignificantBits());
+        Mockito.doNothing().when(productService).deleteProduct(productUUID);
 
         mockMvc.perform(delete(String.format("/api/v1/products/%s", productUUID)))
                 .andExpect(status().isNoContent());
@@ -261,7 +261,7 @@ class ProductControllerTest {
     @SneakyThrows
     void deleteProduct_withNonExistentId_shouldReturn204() {
         UUID randUUID = UUID.randomUUID();
-        Mockito.doNothing().when(productService).deleteProduct(randUUID.getMostSignificantBits());
+        Mockito.doNothing().when(productService).deleteProduct(randUUID);
 
         mockMvc.perform(delete(String.format("/api/v1/products/%s", randUUID)))
                 .andExpect(status().isNoContent());

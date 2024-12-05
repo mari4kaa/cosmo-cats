@@ -28,7 +28,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
         try {
-            log.info("Attempting to create a new product: {}", productDto);
+            log.info("Creating a new product: {}", productDto);
             ProductDto createdProductDto = productService.createProduct(productDto);
             
             log.info("Product created successfully with ID: {}", createdProductDto.getId());
@@ -57,7 +57,7 @@ public class ProductController {
     public ResponseEntity<ProductDto> getProductById(@PathVariable UUID id) {
         try {
             log.info("Fetching product with ID: {}", id);
-            ProductDto productDto = productService.getProductById(id.getMostSignificantBits())
+            ProductDto productDto = productService.getProductById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id.toString()));
             
             log.info("Product found: {}", productDto);
@@ -73,9 +73,9 @@ public class ProductController {
             @PathVariable UUID id, 
             @Valid @RequestBody ProductDto productDto) {
         try {
-            log.info("Attempting to update product with ID: {}", id);
+            log.info("Updating product with ID: {}", id);
             
-            ProductDto updatedProductDto = productService.updateProduct(id.getMostSignificantBits(), productDto);
+            ProductDto updatedProductDto = productService.updateProduct(id, productDto);
             
             log.info("Product updated successfully: {}", updatedProductDto);
             return ResponseEntity.ok(updatedProductDto);
@@ -88,8 +88,8 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         try {
-            log.info("Attempting to delete product with ID: {}", id);
-            productService.deleteProduct(id.getMostSignificantBits());
+            log.info("Deleting product with ID: {}", id);
+            productService.deleteProduct(id);
             
             log.info("Product deleted successfully with ID: {}", id);
             return ResponseEntity.noContent().build();

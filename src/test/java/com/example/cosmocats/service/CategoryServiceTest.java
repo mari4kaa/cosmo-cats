@@ -47,7 +47,7 @@ class CategoryServiceTest {
 
         when(categoryRepository.findById(categoryUUID.getMostSignificantBits())).thenReturn(Optional.of(categoryEntity));
 
-        Optional<CategoryDto> result = categoryService.getCategoryById(categoryUUID.getMostSignificantBits());
+        Optional<CategoryDto> result = categoryService.getCategoryById(categoryUUID);
 
         assertNotNull(result);
         assertEquals("Nebula Resources", result.get().getName());
@@ -57,7 +57,7 @@ class CategoryServiceTest {
     void getCategoryById_withInvalidId_shouldReturnNull() {
         when(categoryRepository.findById(categoryUUID.getMostSignificantBits())).thenReturn(Optional.empty());
 
-        Optional<CategoryDto> result = categoryService.getCategoryById(categoryUUID.getMostSignificantBits());
+        Optional<CategoryDto> result = categoryService.getCategoryById(categoryUUID);
 
         assertTrue(result.isEmpty());
     }
@@ -99,7 +99,7 @@ class CategoryServiceTest {
         when(categoryRepository.findById(categoryUUID.getMostSignificantBits())).thenReturn(Optional.of(updatedEntity));
         when(categoryRepository.save(Mockito.any(CategoryEntity.class))).thenReturn(updatedEntity);
 
-        CategoryDto updatedCategory = categoryService.updateCategory(categoryUUID.getMostSignificantBits(), updatedCategoryDto);
+        CategoryDto updatedCategory = categoryService.updateCategory(categoryUUID, updatedCategoryDto);
 
         assertNotNull(updatedCategory);
         assertEquals("Galactic Essentials", updatedCategory.getName());
@@ -110,7 +110,7 @@ class CategoryServiceTest {
         when(categoryRepository.existsById(categoryUUID.getMostSignificantBits())).thenReturn(true);
         doNothing().when(categoryRepository).deleteById(categoryUUID.getMostSignificantBits());
 
-        categoryService.deleteCategory(categoryUUID.getMostSignificantBits());
+        categoryService.deleteCategory(categoryUUID);
 
         verify(categoryRepository, times(1)).deleteById(categoryUUID.getMostSignificantBits());
     }

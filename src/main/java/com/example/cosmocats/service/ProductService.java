@@ -2,6 +2,7 @@ package com.example.cosmocats.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -50,39 +51,39 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<ProductDto> getProductById(Long id) {
-        return productRepository.findById(id)
+    public Optional<ProductDto> getProductById(UUID id) {
+        return productRepository.findById(id.getMostSignificantBits())
             .map(productMapper::entityToDto);
     }
 
     @Transactional
-    public ProductDto updateProduct(Long id, ProductDto updatedProductDto) {
+    public ProductDto updateProduct(UUID id, ProductDto updatedProductDto) {
         try {
-            return productRepository.findById(id)
+            return productRepository.findById(id.getMostSignificantBits())
                 .map(existingEntity -> {
                     ProductEntity updatedEntity = productMapper.dtoToEntity(updatedProductDto);
-                    updatedEntity.setId(id);
+                    updatedEntity.setId(id.getMostSignificantBits());
                     ProductEntity savedEntity = productRepository.save(updatedEntity);
                     log.info("Product updated successfully with ID: {}", id);
                     return productMapper.entityToDto(savedEntity);
                 })
-                .orElseThrow(() -> new ProductNotFoundException(String.format("Product with id '%d' not found", id)));
+                .orElseThrow(() -> new ProductNotFoundException(String.format("Product with id '%d' not found", id.getMostSignificantBits())));
         } catch (Exception e) {
             throw new ProductUpdateException(String.format("Failed to update product: %s", e.getMessage()));
         }
     }
 
     @Transactional
-    public void deleteProduct(Long id) {
-        if (!productRepository.existsById(id)) {
+    public void deleteProduct(UUID id) {
+        if (!productRepository.existsById(id.getMostSignificantBits())) {
             return;
         }
         
         try {
-            productRepository.deleteById(id);
+            productRepository.deleteById(id.getMostSignificantBits());
             log.info("Product deleted successfully with ID: {}", id);
         } catch (Exception e) {
-            log.error(String.format("Failed to delete product with ID %d: %s", id, e.getMessage()));
+            log.error(String.format("Failed to delete product with ID %d: %s", id.getMostSignificantBits(), e.getMessage()));
             throw new ProductDeletionException(String.format("Failed to delete product: %s", e.getMessage()));
         }
     }

@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
@@ -27,6 +29,10 @@ class ProductServiceTest {
 
     private ProductDto testProductDto;
 
+    private Long productId;
+    private UUID id;
+    private UUID categoryId;
+
     @BeforeEach
     void setUp() {
         productMapper = Mappers.getMapper(ProductMapper.class);
@@ -35,9 +41,13 @@ class ProductServiceTest {
 
         productService = new ProductService(productRepository, productMapper);
 
+        id = UUID.randomUUID();
+        productId = id.getMostSignificantBits();
+        categoryId = UUID.randomUUID(); 
+
         testProductDto = ProductDto.builder()
-                .id(UUID.randomUUID())
-                .categoryId(UUID.randomUUID())
+                .id(id)
+                .categoryId(categoryId)
                 .name("CatStronaut Helmet")
                 .description("A stellar helmet for adventurous cosmic cats.")
                 .origin("Lunar Paw Station")
@@ -49,7 +59,7 @@ class ProductServiceTest {
     void createProduct_withValidData_shouldReturnCreatedProduct() {
         ProductEntity productEntity = productMapper.dtoToEntity(testProductDto);
         ProductEntity savedEntity = ProductEntity.builder()
-                .id(1L)
+                .id(productId)
                 .category(productEntity.getCategory())
                 .name(productEntity.getName())
                 .description(productEntity.getDescription())
@@ -99,11 +109,11 @@ class ProductServiceTest {
     @Test
     void getProductById_whenProductExists_shouldReturnProduct() {
         ProductEntity productEntity = productMapper.dtoToEntity(testProductDto);
-        productEntity.setId(1L);
+        productEntity.setId(productId);
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(productEntity));
 
-        Optional<ProductDto> retrievedProduct = productService.getProductById(1L);
+        Optional<ProductDto> retrievedProduct = productService.getProductById(id);
 
         assertTrue(retrievedProduct.isPresent());
         assertEquals("CatStronaut Helmet", retrievedProduct.get().getName());
@@ -111,9 +121,12 @@ class ProductServiceTest {
 
     @Test
     void getProductById_whenProductDoesNotExist_shouldReturnEmptyOptional() {
-        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+        UUID randId = UUID.randomUUID();
+        Long randProductId = randId.getMostSignificantBits();
 
-        Optional<ProductDto> retrievedProduct = productService.getProductById(1L);
+        when(productRepository.findById(randProductId)).thenReturn(Optional.empty());
+
+        Optional<ProductDto> retrievedProduct = productService.getProductById(randId);
 
         assertTrue(retrievedProduct.isEmpty());
     }
@@ -121,7 +134,7 @@ class ProductServiceTest {
     @Test
     void updateProduct_whenProductExists_shouldUpdateAndReturnUpdatedProduct() {
         ProductEntity productEntity = productMapper.dtoToEntity(testProductDto);
-        productEntity.setId(1L);
+        productEntity.setId(productId);
 
         ProductDto updatedProductDto = ProductDto.builder()
                 .id(testProductDto.getId())
@@ -133,12 +146,12 @@ class ProductServiceTest {
                 .build();
 
         ProductEntity updatedEntity = productMapper.dtoToEntity(updatedProductDto);
-        updatedEntity.setId(1L);
+        updatedEntity.setId(productId);
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(productEntity));
         when(productRepository.save(any(ProductEntity.class))).thenReturn(updatedEntity);
 
-        ProductDto result = productService.updateProduct(1L, updatedProductDto);
+        ProductDto result = productService.updateProduct(testProductDto.getId(), updatedProductDto);
 
         assertNotNull(result);
         assertEquals("Nebula Scratcher", result.getName());
@@ -150,15 +163,15 @@ class ProductServiceTest {
     void updateProduct_withException_shouldThrowProductUpdateException() {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ProductUpdateException.class, () -> productService.updateProduct(1L, testProductDto));
+        assertThrows(ProductUpdateException.class, () -> productService.updateProduct(testProductDto.getId(), testProductDto));
     }
 
     @Test
     void deleteProduct_whenProductExists_shouldRemoveProduct() {
-        when(productRepository.existsById(1L)).thenReturn(true);
+        when(productRepository.existsById(productId)).thenReturn(true);
 
-        productService.deleteProduct(1L);
+        productService.deleteProduct(testProductDto.getId());
 
-        verify(productRepository, times(1)).deleteById(1L);
+        verify(productRepository, times(1)).deleteById(productId);
     }
 }

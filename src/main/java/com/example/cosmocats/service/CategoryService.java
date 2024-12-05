@@ -1,13 +1,11 @@
 package com.example.cosmocats.service;
 
 import com.example.cosmocats.dto.CategoryDto;
-import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.entities.CategoryEntity;
 import com.example.cosmocats.service.exception.CategoryCreationException;
 import com.example.cosmocats.service.exception.CategoryDeletionException;
 import com.example.cosmocats.service.exception.CategoryNotFoundException;
 import com.example.cosmocats.service.exception.CategoryUpdateException;
-import com.example.cosmocats.service.exception.ProductCreationException;
 import com.example.cosmocats.mapper.CategoryMapper;
 import com.example.cosmocats.repository.CategoryRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,17 +31,14 @@ public class CategoryService {
 
     @Transactional
     public CategoryDto createCategory(CategoryDto categoryDto) {
-        log.info("Checking if category with name '{}' already exists", categoryDto.getName());
         if (categoryRepository.findByName(categoryDto.getName()).isPresent()) {
-            log.error("Category with name '{}' already exists.", categoryDto.getName());
             throw new CategoryCreationException(String.format("Category with name '%s' already exists.", categoryDto.getName()));
         }
 
         CategoryEntity categoryEntity = categoryMapper.dtoToEntity(categoryDto);
-        log.info("Creating category with name '{}'", categoryDto.getName());
         categoryEntity = categoryRepository.save(categoryEntity);
-
         log.info("Category created successfully with ID '{}'", categoryEntity.getId());
+
         return categoryMapper.entityToDto(categoryEntity);
     }
 
@@ -54,37 +50,32 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<CategoryDto> getCategoryById(Long id) {
-        return categoryRepository.findById(id)
+    public Optional<CategoryDto> getCategoryById(UUID id) {
+        return categoryRepository.findById(id.getMostSignificantBits())
             .map(categoryMapper::entityToDto);
     }
 
     @Transactional
-    public CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto) {
-        log.info("Attempting to update category with ID '{}'", categoryId);
-        Optional<CategoryEntity> existingCategory = categoryRepository.findById(categoryId);
-
-        if (existingCategory.isEmpty()) {
-            log.error("Category with ID '{}' not found.", categoryId);
-            throw new CategoryNotFoundException(String.format("Category with ID '%d' not found.", categoryId));
-        }
-
-        CategoryEntity categoryEntity = existingCategory.get();
-        categoryEntity.setName(categoryDto.getName());
-
+    public CategoryDto updateCategory(UUID id, CategoryDto updatedcategoryDto) {
+        Long categoryId = id.getMostSignificantBits();
         try {
-            categoryEntity = categoryRepository.save(categoryEntity);
-            log.info("Category with ID '{}' updated successfully", categoryId);
+            return categoryRepository.findById(categoryId)
+                .map(existingEntity -> {
+                    CategoryEntity updatedEntity = categoryMapper.dtoToEntity(updatedcategoryDto);
+                    updatedEntity.setId(categoryId);
+                    CategoryEntity savedEntity = categoryRepository.save(updatedEntity);
+                    log.info("Category updated successfully with ID: {}", categoryId);
+                    return categoryMapper.entityToDto(savedEntity);
+                })
+                .orElseThrow(() -> new CategoryNotFoundException(String.format("Category with id '%d' not found", categoryId)));
         } catch (Exception e) {
-            log.error("Failed to update category with ID '{}': {}", categoryId, e.getMessage());
-            throw new CategoryUpdateException(String.format("Failed to update category with ID '%d'.", categoryId));
+            throw new CategoryUpdateException(String.format("Failed to update category: %s", e.getMessage()));
         }
-
-        return categoryMapper.entityToDto(categoryEntity);
     }
 
     @Transactional
-    public void deleteCategory(Long categoryId) {
+    public void deleteCategory(UUID id) {
+        Long categoryId = id.getMostSignificantBits();
 
         if (!categoryRepository.existsById(categoryId)) {
             return;
