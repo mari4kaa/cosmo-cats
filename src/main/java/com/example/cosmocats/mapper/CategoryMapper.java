@@ -10,11 +10,8 @@ import com.example.cosmocats.domain.Category;
 import com.example.cosmocats.dto.CategoryDto;
 import com.example.cosmocats.entities.CategoryEntity;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CategoryMapper {
-    static CategoryMapper getInstance() {
-        return Mappers.getMapper(CategoryMapper.class);
-    }
 
     CategoryDto categoryToDto(Category category);
     Category dtoToCategory(CategoryDto dto);

@@ -5,7 +5,6 @@ import com.example.cosmocats.entities.ProductEntity;
 import com.example.cosmocats.mapper.ProductMapper;
 import com.example.cosmocats.repository.ProductRepository;
 import com.example.cosmocats.service.exception.ProductCreationException;
-import com.example.cosmocats.service.exception.ProductUpdateException;
 import com.example.cosmocats.web.exception.ProductNotFoundException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -148,6 +147,7 @@ class ProductServiceTest {
         ProductEntity updatedEntity = productMapper.dtoToEntity(updatedProductDto);
         updatedEntity.setId(productId);
 
+        when(productRepository.existsById(productId)).thenReturn(true);
         when(productRepository.findById(productId)).thenReturn(Optional.of(productEntity));
         when(productRepository.save(any(ProductEntity.class))).thenReturn(updatedEntity);
 
@@ -163,7 +163,7 @@ class ProductServiceTest {
     void updateProduct_withException_shouldThrowProductUpdateException() {
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ProductUpdateException.class, () -> productService.updateProduct(testProductDto.getId(), testProductDto));
+        assertThrows(ProductNotFoundException.class, () -> productService.updateProduct(testProductDto.getId(), testProductDto));
     }
 
     @Test

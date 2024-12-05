@@ -31,7 +31,7 @@ class CategoryServiceTest {
     void setUp() {
         categoryMapper = Mappers.getMapper(CategoryMapper.class);
         categoryRepository = mock(CategoryRepository.class);
-        categoryService = new CategoryService(categoryRepository);
+        categoryService = new CategoryService(categoryRepository, categoryMapper);
 
         categoryUUID = UUID.randomUUID();
 
@@ -96,6 +96,7 @@ class CategoryServiceTest {
 
         CategoryEntity updatedEntity = categoryMapper.dtoToEntity(updatedCategoryDto);
 
+        when(categoryRepository.existsById(categoryUUID.getMostSignificantBits())).thenReturn(true);
         when(categoryRepository.findById(categoryUUID.getMostSignificantBits())).thenReturn(Optional.of(updatedEntity));
         when(categoryRepository.save(Mockito.any(CategoryEntity.class))).thenReturn(updatedEntity);
 

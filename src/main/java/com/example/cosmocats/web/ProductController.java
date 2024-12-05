@@ -40,32 +40,18 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductDto>> getAllProducts() {
-        try {
+        public ResponseEntity<List<ProductDto>> getAllProducts() {
             log.info("Fetching all products");
-            List<ProductDto> productDtos = productService.getAllProducts();
-            
-            log.info("Retrieved {} products", productDtos.size());
-            return ResponseEntity.ok(productDtos);
-        } catch (Exception e) {
-            log.error("Error retrieving products: {}", e.getMessage());
-            throw e;
+            List<ProductDto> products = productService.getAllProducts();
+            return ResponseEntity.ok(products);
         }
-    }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable UUID id) {
-        try {
-            log.info("Fetching product with ID: {}", id);
-            ProductDto productDto = productService.getProductById(id)
-                .orElseThrow(() -> new ProductNotFoundException(id.toString()));
-            
-            log.info("Product found: {}", productDto);
-            return ResponseEntity.ok(productDto);
-        } catch (ProductNotFoundException e) {
-            log.warn("Product not found with ID: {}", id);
-            throw e;
-        }
+    public ResponseEntity<ProductDto> getProduct(@PathVariable UUID id) {
+        log.info("Fetching product with ID '{}'", id);
+        return productService.getProductById(id)
+            .map(ResponseEntity::ok)
+            .orElseThrow(() -> new ProductNotFoundException(id.toString()));
     }
 
     @PutMapping("/{id}")

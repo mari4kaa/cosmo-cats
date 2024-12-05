@@ -7,7 +7,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
 
 import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
@@ -15,10 +14,7 @@ import com.example.cosmocats.entities.ProductEntity;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-    static ProductMapper getInstance() {
-        return Mappers.getMapper(ProductMapper.class);
-    }
-
+    
     @Mapping(target = "categoryId", source = "category.id")
     ProductDto productToDto(Product product);
 

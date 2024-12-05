@@ -11,11 +11,8 @@ import com.example.cosmocats.domain.order.OrderEntry;
 import com.example.cosmocats.entities.OrderEntryEntity;
 import com.example.cosmocats.entities.ProductEntity;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface OrderEntryMapper {
-    static OrderEntryMapper getInstance() {
-        return Mappers.getMapper(OrderEntryMapper.class);
-    }
 
     @Mapping(target = "product", source = "product")
     OrderEntry entityToDomain(OrderEntryEntity entity);

@@ -1,12 +1,10 @@
 package com.example.cosmocats.web;
 
 import com.example.cosmocats.dto.CategoryDto;
-import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.exception.CategoryCreationException;
 import com.example.cosmocats.service.exception.CategoryDeletionException;
-import com.example.cosmocats.service.exception.CategoryNotFoundException;
 import com.example.cosmocats.service.exception.CategoryUpdateException;
-import com.example.cosmocats.web.exception.ProductNotFoundException;
+import com.example.cosmocats.web.exception.CategoryNotFoundException;
 import com.example.cosmocats.service.CategoryService;
 
 import java.util.List;
@@ -44,32 +42,18 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> getAllProducts() {
-        try {
-            log.info("Fetching all categories");
-            List<CategoryDto> categoryDtos = categoryService.getAllCategories();
-            
-            log.info("Retrieved {} categories", categoryDtos.size());
-            return ResponseEntity.ok(categoryDtos);
-        } catch (Exception e) {
-            log.error("Error retrieving categories: {}", e.getMessage());
-            throw e;
-        }
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
+        log.info("Fetching all categories");
+        List<CategoryDto> categories = categoryService.getAllCategories();
+        return ResponseEntity.ok(categories);
     }
 
-    @GetMapping("/{categoryId}")
-    public ResponseEntity<CategoryDto> getCategory(@PathVariable UUID categoryId) {
-        log.info("Retrieving category with ID: '{}'", categoryId);
-        try {
-            CategoryDto categoryDto = categoryService.getCategoryById(categoryId)
-                                        .orElseThrow(() -> new CategoryNotFoundException(categoryId.toString()));
-
-            log.info("Category retrieved successfully with ID: '{}'", categoryId);
-            return new ResponseEntity<>(categoryDto, HttpStatus.OK);
-        } catch (CategoryNotFoundException e) {
-            log.error("Category with ID '{}' not found: {}", categoryId, e.getMessage());
-            throw e;
-        }
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryDto> getProduct(@PathVariable UUID id) {
+        log.info("Fetching categories with ID '{}'", id);
+        return categoryService.getCategoryById(id)
+            .map(ResponseEntity::ok)
+            .orElseThrow(() -> new CategoryNotFoundException("Category not found."));
     }
 
     @PutMapping("/{categoryId}")

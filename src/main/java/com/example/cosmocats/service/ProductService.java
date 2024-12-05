@@ -58,16 +58,22 @@ public class ProductService {
 
     @Transactional
     public ProductDto updateProduct(UUID id, ProductDto updatedProductDto) {
+        Long productId = id.getMostSignificantBits();
+
+        if (!productRepository.existsById(productId)) {
+            throw new ProductNotFoundException(productId.toString());
+        }
+
         try {
-            return productRepository.findById(id.getMostSignificantBits())
+            return productRepository.findById(productId)
                 .map(existingEntity -> {
                     ProductEntity updatedEntity = productMapper.dtoToEntity(updatedProductDto);
-                    updatedEntity.setId(id.getMostSignificantBits());
+                    updatedEntity.setId(productId);
                     ProductEntity savedEntity = productRepository.save(updatedEntity);
-                    log.info("Product updated successfully with ID: {}", id);
+                    log.info("Product updated successfully with ID: {}", productId);
                     return productMapper.entityToDto(savedEntity);
                 })
-                .orElseThrow(() -> new ProductNotFoundException(String.format("Product with id '%d' not found", id.getMostSignificantBits())));
+                .orElseThrow(() -> new ProductNotFoundException(productId.toString()));
         } catch (Exception e) {
             throw new ProductUpdateException(String.format("Failed to update product: %s", e.getMessage()));
         }
@@ -75,15 +81,16 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(UUID id) {
-        if (!productRepository.existsById(id.getMostSignificantBits())) {
+        Long productId = id.getMostSignificantBits();
+        if (!productRepository.existsById(productId)) {
             return;
         }
         
         try {
-            productRepository.deleteById(id.getMostSignificantBits());
+            productRepository.deleteById(productId);
             log.info("Product deleted successfully with ID: {}", id);
         } catch (Exception e) {
-            log.error(String.format("Failed to delete product with ID %d: %s", id.getMostSignificantBits(), e.getMessage()));
+            log.error(String.format("Failed to delete product with ID %d: %s", productId, e.getMessage()));
             throw new ProductDeletionException(String.format("Failed to delete product: %s", e.getMessage()));
         }
     }

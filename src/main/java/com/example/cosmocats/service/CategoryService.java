@@ -4,10 +4,12 @@ import com.example.cosmocats.dto.CategoryDto;
 import com.example.cosmocats.entities.CategoryEntity;
 import com.example.cosmocats.service.exception.CategoryCreationException;
 import com.example.cosmocats.service.exception.CategoryDeletionException;
-import com.example.cosmocats.service.exception.CategoryNotFoundException;
 import com.example.cosmocats.service.exception.CategoryUpdateException;
+import com.example.cosmocats.web.exception.CategoryNotFoundException;
 import com.example.cosmocats.mapper.CategoryMapper;
 import com.example.cosmocats.repository.CategoryRepository;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,16 +20,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-        this.categoryMapper = CategoryMapper.getInstance();
-    }
 
     @Transactional
     public CategoryDto createCategory(CategoryDto categoryDto) {
@@ -58,6 +56,11 @@ public class CategoryService {
     @Transactional
     public CategoryDto updateCategory(UUID id, CategoryDto updatedcategoryDto) {
         Long categoryId = id.getMostSignificantBits();
+
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new CategoryNotFoundException(categoryId.toString());
+        }
+
         try {
             return categoryRepository.findById(categoryId)
                 .map(existingEntity -> {

@@ -4,6 +4,8 @@ import com.example.cosmocats.dto.order.OrderDto;
 import com.example.cosmocats.projection.ProductReport;
 import com.example.cosmocats.service.OrderService;
 import com.example.cosmocats.service.exception.*;
+import com.example.cosmocats.web.exception.OrderNotFoundException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,11 +45,11 @@ public class OrderController {
             return ResponseEntity.ok(orders);
         }
 
-        /*@GetMapping("/reports/most-frequent-order-entries")
+        @GetMapping("/most-frequent-order-entries")
         public ResponseEntity<List<ProductReport>> getMostFrequentProducts() {
             List<ProductReport> reports = orderService.findMostFrequentOrderEntries();
             return ResponseEntity.ok(reports);
-        }*/
+        }
     
         @GetMapping("/{orderId}")
         public ResponseEntity<OrderDto> getOrder(@PathVariable UUID orderId) {
