@@ -57,7 +57,7 @@ public class ProductService {
         Long productId = id.getMostSignificantBits();
 
         if (!productRepository.existsById(productId)) {
-            throw new ProductNotFoundException(productId.toString());
+            throw new ProductNotFoundException(id.toString());
         }
 
         try {
