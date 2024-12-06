@@ -58,7 +58,7 @@ public class CategoryService {
         Long categoryId = id.getMostSignificantBits();
 
         if (!categoryRepository.existsById(categoryId)) {
-            throw new CategoryNotFoundException(categoryId.toString());
+            throw new CategoryNotFoundException(id.toString());
         }
 
         try {
@@ -70,7 +70,7 @@ public class CategoryService {
                     log.info("Category updated successfully with ID: {}", categoryId);
                     return categoryMapper.entityToDto(savedEntity);
                 })
-                .orElseThrow(() -> new CategoryNotFoundException(String.format("Category with id '%d' not found", categoryId)));
+                .orElseThrow(() -> new CategoryNotFoundException(id.toString()));
         } catch (Exception e) {
             throw new CategoryUpdateException(String.format("Failed to update category: %s", e.getMessage()));
         }

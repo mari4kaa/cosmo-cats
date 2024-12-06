@@ -207,10 +207,10 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(post("/api/v1/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(productDto)))
-        .andExpect(status().isConflict())
+        .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
         .andExpect(jsonPath("$.title").value("Conflict"))
-        .andExpect(jsonPath("$.status").value(409))
+        .andExpect(jsonPath("$.status").value(400))
         .andExpect(jsonPath("$.detail").value("Product with name 'Cosmic Widget' already exists."));
     }
 

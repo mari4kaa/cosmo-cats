@@ -45,12 +45,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleProductCreationException(
             ProductCreationException ex, WebRequest request) {
         
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Conflict");
         problemDetail.setDetail(ex.getMessage());
         problemDetail.setInstance(URI.create(request.getDescription(false)));
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(CategoryCreationException.class)
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
         error.setDetail(String.format("Validation failed: %s", ex.getMessage()));
         error.setInstance(URI.create(request.getDescription(false)));
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(ProductUpdateException.class)
@@ -134,7 +134,7 @@ public class GlobalExceptionHandler {
         error.setDetail(String.format("Validation failed: %s", ex.getMessage()));
         error.setInstance(URI.create(request.getDescription(false)));
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(OrderUpdateException.class)

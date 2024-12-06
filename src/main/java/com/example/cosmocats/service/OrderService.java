@@ -66,7 +66,7 @@ public class OrderService {
         Long orderId = id.getMostSignificantBits();
 
         if (!orderRepository.existsById(orderId)) {
-            throw new OrderNotFoundException(orderId.toString());
+            throw new OrderNotFoundException(id.toString());
         }
 
         try {

@@ -49,11 +49,11 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryDto> getProduct(@PathVariable UUID id) {
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable UUID id) {
         log.info("Fetching categories with ID '{}'", id);
         return categoryService.getCategoryById(id)
             .map(ResponseEntity::ok)
-            .orElseThrow(() -> new CategoryNotFoundException("Category not found."));
+            .orElseThrow(() -> new CategoryNotFoundException(id.toString()));
     }
 
     @PutMapping("/{categoryId}")
