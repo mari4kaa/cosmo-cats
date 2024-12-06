@@ -5,12 +5,14 @@ import lombok.*;
 
 import java.util.List;
 
+import org.hibernate.annotations.NaturalId;
+
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "order")
+@Table(name = "\"order\"")
 public class OrderEntity {
 
     @Id
@@ -21,6 +23,6 @@ public class OrderEntity {
     @Column(nullable = false)
     private Float price;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<OrderEntryEntity> entries;
 }

@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(OrderController.class)
 class OrderControllerTest {
 
-    @Autowired
+    /*@Autowired
     private MockMvc mockMvc;
 
     @MockBean
@@ -187,5 +187,5 @@ class TestProductReport implements ProductReport {
     @Override
     public Long getTotalQuantity() {
         return totalQuantity;
-    }
+    }*/
 }

@@ -14,7 +14,7 @@ public class OrderDto {
     UUID id;
 
     @NotEmpty(message = "Order must contain at least one entry")
-    List<UUID> entryIds;
+    List<OrderEntryDto> entryDtos;
 
     @PositiveOrZero(message = "Price cannot be negative")
     Float price;

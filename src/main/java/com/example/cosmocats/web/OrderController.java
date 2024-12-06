@@ -28,7 +28,7 @@ public class OrderController {
     
         @PostMapping
         public ResponseEntity<OrderDto> createOrder(@RequestBody @Valid OrderDto orderDto) {
-            log.info("Creating order with ID '{}'", orderDto.getId());
+            log.info("Creating order with ID");
             try {
                 OrderDto createdOrder = orderService.createOrder(orderDto);
                 return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);

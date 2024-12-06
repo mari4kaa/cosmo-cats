@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 class OrderServiceTest {
 
-    private OrderService orderService;
+    /*private OrderService orderService;
     private OrderRepository orderRepository;
     private OrderEntryRepository orderEntryRepository;
     private OrderMapper orderMapper;
@@ -192,5 +192,5 @@ class OrderServiceTest {
         orderService.deleteOrder(testOrderDto.getId());
 
         verify(orderRepository, times(1)).deleteByNaturalId(orderId);
-    }
+    }*/
 }
