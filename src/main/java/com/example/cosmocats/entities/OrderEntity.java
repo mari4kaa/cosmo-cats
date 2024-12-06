@@ -23,6 +23,6 @@ public class OrderEntity {
     @Column(nullable = false)
     private Float price;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderEntryEntity> entries;
 }

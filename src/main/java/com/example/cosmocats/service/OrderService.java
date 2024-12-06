@@ -53,7 +53,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Optional<OrderDto> getOrderById(UUID id) {
         log.info("Fetching order with ID '{}'", id);
-        return orderRepository.findByNaturalId(id.getMostSignificantBits())
+        return orderRepository.findByNaturalId(orderMapper.uuidToLong(id))
                 .map(orderMapper::entityToDto);
     }
 

@@ -24,29 +24,20 @@ public interface OrderMapper {
     @Mapping(target = "entries", source = "entryDtos")
     Order dtoToOrder(OrderDto dto);
 
-    default List<OrderEntryDto> entriesToEntryDtos(List<OrderEntry> entries) {
-        return entries.stream()
-            .map(entry -> OrderEntryDto.builder()
-                .productId(entry.getProduct().getId())
-                .quantity(entry.getQuantity())
-                .build())
-            .collect(Collectors.toList());
-    }
-
-    default List<OrderEntry> entryDtosToEntries(List<OrderEntryDto> entryDtos) {
-        return entryDtos.stream()
-            .map(dto -> OrderEntry.builder()
-                .product(com.example.cosmocats.domain.Product.builder()
-                    .id(dto.getProductId())
-                    .build())
-                .quantity(dto.getQuantity())
-                .build())
-            .collect(Collectors.toList());
-    }
-
     @Mapping(target = "id", expression = "java(uuidToLong(dto.getId()))")
     @Mapping(target = "entries", source = "entryDtos")
-    OrderEntity dtoToEntity(OrderDto dto);
+    default OrderEntity dtoToEntity(OrderDto dto) {
+        OrderEntity orderEntity = new OrderEntity();
+        orderEntity.setId(uuidToLong(dto.getId()));
+        orderEntity.setPrice(dto.getPrice());
+
+        // Link entries to order
+        List<OrderEntryEntity> entryEntities = entryDtosToEntities(dto.getEntryDtos());
+        entryEntities.forEach(entry -> entry.setOrder(orderEntity));
+        orderEntity.setEntries(entryEntities);
+
+        return orderEntity;
+    }
 
     @Mapping(target = "id", expression = "java(longToUuid(entity.getId()))")
     @Mapping(target = "entryDtos", source = "entries")

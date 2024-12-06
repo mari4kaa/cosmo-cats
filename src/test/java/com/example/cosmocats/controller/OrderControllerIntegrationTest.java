@@ -175,19 +175,19 @@ class OrderControllerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.price").value(49.98f));
     }
-}
-    /*@Test
+
+    @Test
     @SneakyThrows
     void testCreateOrderInvalidPrice() {
         OrderDto orderDto = OrderDto.builder()
                 .price(-10f) // Invalid price
-                .entries(Arrays.asList(
+                .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
-                                .productId(product1Dto.getId())
+                                .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(2)
                                 .build(),
                         OrderEntryDto.builder()
-                                .productId(product1Dto.getId())
+                                .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
                                 .build()
                 ))
@@ -204,28 +204,25 @@ class OrderControllerIntegrationTest {
     @SneakyThrows
     void testGetOrder() {
 
-        OrderEntity existingOrder = orderRepository.save(OrderEntity.builder()
-                .price(69.98f)
-                .entries(Arrays.asList())
-                .build());
+        OrderDto existingOrderDto = OrderDto.builder()
+                .price(49.98f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(2)
+                                .build(),
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product2.getId()))
+                                .quantity(1)
+                                .build()
+                ))
+                .build();
+        
+        OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
 
-        OrderEntryEntity orderEntry1 = orderEntryRepository.save(OrderEntryEntity.builder()
-            .order(existingOrder)
-            .product(product1)
-            .quantity(2)
-            .build());
-
-        OrderEntryEntity orderEntry2 = orderEntryRepository.save(OrderEntryEntity.builder()
-            .order(existingOrder)
-            .product(product1)
-            .quantity(2)
-            .build());
-
-        existingOrder.setEntries(Arrays.asList(orderEntry1, orderEntry2));
-
-        mockMvc.perform(get("/api/v1/orders/{id}", existingOrder.getId()))
+        mockMvc.perform(get("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId())))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.price").value(69.98f));
+                .andExpect(jsonPath("$.price").value(49.98f));
     }
 
     @Test
@@ -234,8 +231,8 @@ class OrderControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/orders/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound());
     }
-
-    @Test
+}
+    /*@Test
     @SneakyThrows
     void testUpdateOrder() {
         OrderEntity existingOrder = orderRepository.save(OrderEntity.builder()
