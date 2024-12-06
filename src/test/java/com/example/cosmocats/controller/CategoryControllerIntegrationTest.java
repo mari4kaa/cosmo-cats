@@ -206,9 +206,9 @@ class CategoryControllerIntegrationTest {
                 .name("Deletable Category")
                 .build());
 
-        CategoryDto сategoryDto = categoryMapper.entityToDto(category);
+        CategoryDto categoryDto = categoryMapper.entityToDto(category);
 
-        mockMvc.perform(delete("/api/v1/categories/{id}", сategoryDto.getId()))
+        mockMvc.perform(delete("/api/v1/categories/{id}", categoryDto.getId()))
                 .andExpect(status().isNoContent());
 
         assertFalse(categoryRepository.findById(category.getId()).isPresent());

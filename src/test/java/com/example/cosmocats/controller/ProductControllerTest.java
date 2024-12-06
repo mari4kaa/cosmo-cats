@@ -118,17 +118,6 @@ class ProductControllerTest {
 
     @Test
     @SneakyThrows
-    void updateProduct_withValidUpdatedData_shouldReturn200() {
-        Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProductDto);
-        mockMvc.perform(put(String.format("/api/v1/products/%s", productUUID))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validProductDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Cosmic Beam"));
-    }
-
-    @Test
-    @SneakyThrows
     void createProduct_withInvalidName_shouldReturn400() {
         ProductDto invalidProduct = ProductDto.builder()
                 .id(productUUID)
@@ -224,6 +213,17 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.detail")
                         .value("Validation failed: description: Description cannot exceed 500 characters"))
                 .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
+    }
+
+    @Test
+    @SneakyThrows
+    void updateProduct_withValidUpdatedData_shouldReturn200() {
+        Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProductDto);
+        mockMvc.perform(put(String.format("/api/v1/products/%s", productUUID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validProductDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Cosmic Beam"));
     }
 
     @Test
