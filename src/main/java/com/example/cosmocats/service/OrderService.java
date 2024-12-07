@@ -53,45 +53,36 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Optional<OrderDto> getOrderById(UUID id) {
         log.info("Fetching order with ID '{}'", id);
-        return orderRepository.findByNaturalId(orderMapper.uuidToLong(id))
+        return orderRepository.findById(orderMapper.uuidToLong(id))
                 .map(orderMapper::entityToDto);
     }
 
     @Transactional
     public OrderDto updateOrder(UUID id, OrderDto updatedOrderDto) {
-        Long orderId = id.getMostSignificantBits();
-
-        if (!orderRepository.existsById(orderId)) {
-            throw new OrderNotFoundException(id.toString());
-        }
+        OrderEntity existingEntity = orderRepository.findById(orderMapper.uuidToLong(id))
+            .orElseThrow(() -> new OrderNotFoundException(id.toString()));
 
         try {
-            return orderRepository.findByNaturalId(id.getMostSignificantBits())
-                .map(existingEntity -> {
-                    OrderEntity updatedEntity = orderMapper.dtoToEntity(updatedOrderDto);
-                    updatedEntity.setId(id.getMostSignificantBits());
-                    OrderEntity savedEntity = orderRepository.save(updatedEntity);
-                    log.info("Order updated successfully with ID: {}", id);
-                    return orderMapper.entityToDto(savedEntity);
-                })
-                .orElseThrow(() -> new OrderNotFoundException(id.toString()));
+            orderMapper.updateEntityFromDto(updatedOrderDto, existingEntity);
+            existingEntity.setId(orderMapper.uuidToLong(id));
+            OrderEntity savedEntity = orderRepository.save(existingEntity);
+            log.info("Order updated successfully with ID: {}", id);
+            return orderMapper.entityToDto(savedEntity);
         } catch (Exception e) {
             throw new OrderUpdateException(String.format("Failed to update order: %s", e.getMessage()));
         }
     }
 
     @Transactional
-    public void deleteOrder(UUID orderId) {
-        Optional <OrderEntity> foundEntity = orderRepository.findByNaturalId(orderId.getMostSignificantBits());
-
-        if (!foundEntity.isPresent()) {
+    public void deleteOrder(UUID id) {
+        if (!orderRepository.findById(orderMapper.uuidToLong(id)).isPresent()) {
             return;
         }
 
         try {
-            orderRepository.deleteByNaturalId(orderId.getMostSignificantBits());
+            orderRepository.deleteById(id.getMostSignificantBits());
         } catch (Exception e) {
-            log.error("Failed to delete order '{}': {}", orderId, e.getMessage());
+            log.error("Failed to delete order '{}': {}", id, e.getMessage());
             throw new OrderDeletionException("Failed to delete order.");
         }
     }

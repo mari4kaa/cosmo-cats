@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.annotations.NaturalId;
 
@@ -19,6 +20,10 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_id_seq")
     @SequenceGenerator(name = "order_id_seq", sequenceName = "order_id_seq")
     private Long id;
+
+    @NaturalId
+    @Column(nullable = false, unique = true)
+    private UUID naturalId;
 
     @Column(nullable = false)
     private Float price;

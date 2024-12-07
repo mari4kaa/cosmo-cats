@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import com.example.cosmocats.domain.order.Order;
-import com.example.cosmocats.domain.order.OrderEntry;
 import com.example.cosmocats.dto.order.OrderDto;
 import com.example.cosmocats.dto.order.OrderEntryDto;
 import com.example.cosmocats.entities.OrderEntity;
@@ -24,11 +24,16 @@ public interface OrderMapper {
     @Mapping(target = "entries", source = "entryDtos")
     Order dtoToOrder(OrderDto dto);
 
+    @Mapping(target = "naturalId", ignore = true) // naturalId is not overwritten during update
+    void updateEntityFromDto(OrderDto dto, @MappingTarget OrderEntity entity);
+
     @Mapping(target = "id", expression = "java(uuidToLong(dto.getId()))")
     @Mapping(target = "entries", source = "entryDtos")
     default OrderEntity dtoToEntity(OrderDto dto) {
         OrderEntity orderEntity = new OrderEntity();
-        orderEntity.setId(uuidToLong(dto.getId()));
+        
+        orderEntity.setNaturalId(dto.getId() != null ? dto.getId() : UUID.randomUUID());
+        
         orderEntity.setPrice(dto.getPrice());
 
         // Link entries to order

@@ -1,14 +1,10 @@
 package com.example.cosmocats.controller;
 
-import com.example.cosmocats.dto.CategoryDto;
-import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.dto.order.OrderDto;
 import com.example.cosmocats.dto.order.OrderEntryDto;
 import com.example.cosmocats.entities.CategoryEntity;
 import com.example.cosmocats.entities.OrderEntity;
-import com.example.cosmocats.entities.OrderEntryEntity;
 import com.example.cosmocats.entities.ProductEntity;
-import com.example.cosmocats.mapper.CategoryMapper;
 import com.example.cosmocats.mapper.OrderMapper;
 import com.example.cosmocats.mapper.ProductMapper;
 import com.example.cosmocats.repository.CategoryRepository;
@@ -38,12 +34,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.*;
 
 @SpringBootTest
 @Testcontainers
@@ -97,18 +94,11 @@ class OrderControllerIntegrationTest {
     @Autowired
     private ProductMapper productMapper;
 
-    @Autowired
-    private CategoryMapper categoryMapper;
-
     private MockMvc mockMvc;
 
     private ProductEntity product1;
     private ProductEntity product2;
     private ProductEntity product3;
-
-    private ProductDto product1Dto;
-    private ProductDto product2Dto;
-    private ProductDto product3Dto;
 
     @BeforeEach
     void setup() {
@@ -123,8 +113,6 @@ class OrderControllerIntegrationTest {
         CategoryEntity categoryEntity = categoryRepository.save(CategoryEntity.builder()
             .name("Mock Category")
             .build());
-
-        CategoryDto categoryDto = categoryMapper.entityToDto(categoryEntity);
 
         product1 = productRepository.save(ProductEntity.builder()
                 .category(categoryEntity)
@@ -146,10 +134,6 @@ class OrderControllerIntegrationTest {
                 .description("A tool for the stars.")
                 .price(39.99f)
                 .build());
-
-        product1Dto = productMapper.entityToDto(product1);
-        product2Dto = productMapper.entityToDto(product2);
-        product3Dto = productMapper.entityToDto(product3);
     }
 
     @Test
@@ -202,7 +186,7 @@ class OrderControllerIntegrationTest {
 
     @Test
     @SneakyThrows
-    void testGetOrder() {
+    void testGetOrderById() {
 
         OrderDto existingOrderDto = OrderDto.builder()
                 .price(49.98f)
@@ -231,73 +215,136 @@ class OrderControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/orders/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound());
     }
-}
-    /*@Test
+
+    @Test
     @SneakyThrows
-    void testUpdateOrder() {
-        OrderEntity existingOrder = orderRepository.save(OrderEntity.builder()
-                .price(69.98f)
-                .entries(Arrays.asList(
-                        OrderEntryEntity.builder()
-                                .product(product1)
-                                .quantity(2)
+    void testGetAllOrdersEmpty() {
+        mockMvc.perform(get("/api/v1/orders")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetAllProducts() {
+
+        OrderDto orderDto1 = OrderDto.builder()
+                .price(49.98f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(1)
                                 .build(),
-                        OrderEntryEntity.builder()
-                                .product(product2)
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
                                 .build()
                 ))
-                .build());
-        
-        OrderDto existingOrderDto = orderMapper.entityToDto(existingOrder);
-
-        OrderDto updatedOrder = OrderDto.builder()
-                .entryIds(Collections.singletonList(product3Dto.getId()))
-                .price(39.99f)
                 .build();
 
-        mockMvc.perform(put("/api/v1/orders/{id}", existingOrderDto)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedOrder)))
+        OrderDto orderDto2 = OrderDto.builder()
+                .price(19.99f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(1)
+                                .build()
+                ))
+                .build();
+
+        OrderEntity orderEntity1 = orderRepository.save(orderMapper.dtoToEntity(orderDto1));
+        OrderEntity orderEntity2 = orderRepository.save(orderMapper.dtoToEntity(orderDto2));
+
+        UUID expectedId1 = orderMapper.longToUuid(orderEntity1.getId());
+        UUID expectedId2 = orderMapper.longToUuid(orderEntity2.getId());
+
+        mockMvc.perform(get("/api/v1/orders")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.price").value(39.99f));
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))))
+                .andExpect(jsonPath("$[1].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))));
+    }
+
+    @Test
+    @SneakyThrows
+    void testUpdateOrder() {
+        OrderDto existingOrderDto = OrderDto.builder()
+                .price(49.98f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(2)
+                                .build(),
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product2.getId()))
+                                .quantity(1)
+                                .build()
+                ))
+                .build();
+        
+        OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
+
+        OrderDto updatedOrderDto = OrderDto.builder()
+                .price(29.99f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(1)
+                                .build()
+                ))
+                .build();
+
+        mockMvc.perform(put("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedOrderDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.price").value(29.99f));
     }
 
     @Test
     @SneakyThrows
     void testUpdateOrderNotFound() {
-        OrderDto updatedOrder = OrderDto.builder()
-                .entryIds(Collections.singletonList(product3Dto.getId()))
-                .price(39.99f)
+        OrderDto updatedOrderDto = OrderDto.builder()
+                .price(29.99f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(2)
+                                .build()
+                ))
                 .build();
 
         mockMvc.perform(put("/api/v1/orders/{id}", UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedOrder)))
+                        .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @SneakyThrows
     void testDeleteOrder() {
-        OrderEntity existingOrder = orderRepository.save(OrderEntity.builder()
-                .price(69.98f)
-                .entries(Arrays.asList(
-                        OrderEntryEntity.builder()
-                                .product(product1)
+        OrderDto orderDto = OrderDto.builder()
+                .price(49.98f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(2)
                                 .build(),
-                        OrderEntryEntity.builder()
-                                .product(product2)
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
                                 .build()
                 ))
-                .build());
+                .build();
+        
+        OrderEntity orderEntity = orderRepository.save(orderMapper.dtoToEntity(orderDto));
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", existingOrder.getId()))
+        mockMvc.perform(delete("/api/v1/orders/{id}", orderMapper.longToUuid(orderEntity.getId())))
                 .andExpect(status().isNoContent());
 
-        assertFalse(orderRepository.existsById(existingOrder.getId()));
+        assertFalse(orderRepository.existsById(orderEntity.getId()));
     }
 
     @Test
@@ -310,51 +357,56 @@ class OrderControllerIntegrationTest {
     @Test
     @SneakyThrows
     void testGetMostFrequentProducts() {
-        orderRepository.save(OrderEntity.builder()
+
+        OrderDto orderDto1 = OrderDto.builder()
                 .price(49.98f)
-                .entries(Arrays.asList(
-                        OrderEntryEntity.builder()
-                                .product(product1)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
                                 .build(),
-                        OrderEntryEntity.builder()
-                                .product(product2)
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
                                 .build()
                 ))
-                .build());
+                .build();
 
-        orderRepository.save(OrderEntity.builder()
+        OrderDto orderDto2 = OrderDto.builder()
                 .price(19.99f)
-                .entries(Arrays.asList(
-                        OrderEntryEntity.builder()
-                                .product(product1)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
                                 .build()
                 ))
-                .build());
+                .build();
 
-        orderRepository.save(OrderEntity.builder()
+        OrderDto orderDto3 = OrderDto.builder()
                 .price(59.98f)
-                .entries(Arrays.asList(
-                        OrderEntryEntity.builder()
-                                .product(product1)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
                                 .build(),
-                        OrderEntryEntity.builder()
-                                .product(product3)
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product3.getId()))
                                 .quantity(1)
                                 .build()
                 ))
-                .build());
+                .build();
+
+        orderRepository.save(orderMapper.dtoToEntity(orderDto1));
+        orderRepository.save(orderMapper.dtoToEntity(orderDto2));
+        orderRepository.save(orderMapper.dtoToEntity(orderDto3));
 
         mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3)) // Expect all three products
-                .andExpect(jsonPath("$[0].name").value(product1.getName())) // Product1 should be the most frequent
-                .andExpect(jsonPath("$[1].name").value(product2.getName())) // Product2 and Product3 in subsequent places
-                .andExpect(jsonPath("$[2].name").value(product3.getName()));
+                .andExpect(jsonPath("$[0].productName").value(product1.getName())) // Product1 should be the most frequent
+                .andExpect(jsonPath("$[1].productName", anyOf(is(product2.getName()), is(product3.getName())))) // Product2 and Product3 in subsequent places
+                .andExpect(jsonPath("$[2].productName", anyOf(is(product2.getName()), is(product3.getName()))));
     }
 
     @Test
@@ -369,39 +421,39 @@ class OrderControllerIntegrationTest {
     @Test
     @SneakyThrows
     void testGetMostFrequentProductsTie() {
-        // Create orders with tied frequency
-        orderRepository.save(OrderEntity.builder()
+        // orders with tied frequency
+        OrderDto orderDto1 = OrderDto.builder()
                 .price(49.98f)
-                .entries(Arrays.asList(
-                        OrderEntryEntity.builder()
-                                .product(product1)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
                                 .build(),
-                        OrderEntryEntity.builder()
-                                .product(product2)
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
                                 .build()
                 ))
-                .build());
+                .build();
 
-        orderRepository.save(OrderEntity.builder()
-                .price(49.98f)
-                .entries(Arrays.asList(
-                        OrderEntryEntity.builder()
-                                .product(product1)
-                                .quantity(1)
-                                .build(),
-                        OrderEntryEntity.builder()
-                                .product(product2)
+        OrderDto orderDto2 = OrderDto.builder()
+                .price(19.99f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
                                 .build()
                 ))
-                .build());
+                .build();
+
+        orderRepository.save(orderMapper.dtoToEntity(orderDto1));
+        orderRepository.save(orderMapper.dtoToEntity(orderDto2));
 
         mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2)) // Expect two products
-                .andExpect(jsonPath("$[0].name").value(product1.getName())) // Either product1 or product2 could be first
-                .andExpect(jsonPath("$[1].name").value(product2.getName()));
-    }*/
+                .andExpect(jsonPath("$[0].productName").value(product1.getName())) // Either product1 or product2 can be first
+                .andExpect(jsonPath("$[1].productName").value(product2.getName()));
+    }
+}

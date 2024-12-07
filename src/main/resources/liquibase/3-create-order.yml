@@ -17,6 +17,12 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
+                  name: natural_id
+                  type: UUID
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
                   name: price
                   type: FLOAT
                   constraints:
