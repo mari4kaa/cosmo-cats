@@ -2,12 +2,12 @@ package com.example.cosmocats.service;
 
 import com.example.cosmocats.dto.CategoryDto;
 import com.example.cosmocats.entities.CategoryEntity;
-import com.example.cosmocats.service.exception.CategoryCreationException;
-import com.example.cosmocats.service.exception.CategoryDeletionException;
-import com.example.cosmocats.service.exception.CategoryUpdateException;
 import com.example.cosmocats.web.exception.CategoryNotFoundException;
 import com.example.cosmocats.mapper.CategoryMapper;
 import com.example.cosmocats.repository.CategoryRepository;
+import com.example.cosmocats.service.exception.category.CategoryCreationException;
+import com.example.cosmocats.service.exception.category.CategoryDeletionException;
+import com.example.cosmocats.service.exception.category.CategoryUpdateException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,13 +49,13 @@ public class CategoryService {
 
     @Transactional(readOnly = true)
     public Optional<CategoryDto> getCategoryById(UUID id) {
-        return categoryRepository.findById(id.getMostSignificantBits())
+        return categoryRepository.findById(categoryMapper.uuidToLong(id))
             .map(categoryMapper::entityToDto);
     }
 
     @Transactional
     public CategoryDto updateCategory(UUID id, CategoryDto updatedcategoryDto) {
-        Long categoryId = id.getMostSignificantBits();
+        Long categoryId = categoryMapper.uuidToLong(id);
 
         if (!categoryRepository.existsById(categoryId)) {
             throw new CategoryNotFoundException(id.toString());
@@ -78,7 +78,7 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategory(UUID id) {
-        Long categoryId = id.getMostSignificantBits();
+        Long categoryId = categoryMapper.uuidToLong(id);
 
         if (!categoryRepository.existsById(categoryId)) {
             return;

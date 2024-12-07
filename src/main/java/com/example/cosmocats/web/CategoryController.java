@@ -1,11 +1,11 @@
 package com.example.cosmocats.web;
 
 import com.example.cosmocats.dto.CategoryDto;
-import com.example.cosmocats.service.exception.CategoryCreationException;
-import com.example.cosmocats.service.exception.CategoryDeletionException;
-import com.example.cosmocats.service.exception.CategoryUpdateException;
 import com.example.cosmocats.web.exception.CategoryNotFoundException;
 import com.example.cosmocats.service.CategoryService;
+import com.example.cosmocats.service.exception.category.CategoryCreationException;
+import com.example.cosmocats.service.exception.category.CategoryDeletionException;
+import com.example.cosmocats.service.exception.category.CategoryUpdateException;
 
 import java.util.List;
 import java.util.UUID;

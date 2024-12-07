@@ -41,7 +41,7 @@ class ProductServiceTest {
         productService = new ProductService(productRepository, productMapper);
 
         id = UUID.randomUUID();
-        productId = id.getMostSignificantBits();
+        productId = productMapper.uuidToLong(id);
         categoryId = UUID.randomUUID(); 
 
         testProductDto = ProductDto.builder()
@@ -114,7 +114,7 @@ class ProductServiceTest {
     @Test
     void getProductById_whenProductDoesNotExist_shouldReturnEmptyOptional() {
         UUID randId = UUID.randomUUID();
-        Long randProductId = randId.getMostSignificantBits();
+        Long randProductId = productMapper.uuidToLong(randId);
 
         when(productRepository.findById(randProductId)).thenReturn(Optional.empty());
 

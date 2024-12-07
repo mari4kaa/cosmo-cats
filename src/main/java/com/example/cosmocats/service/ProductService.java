@@ -48,13 +48,13 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Optional<ProductDto> getProductById(UUID id) {
-        return productRepository.findById(id.getMostSignificantBits())
+        return productRepository.findById(productMapper.uuidToLong(id))
             .map(productMapper::entityToDto);
     }
 
     @Transactional
     public ProductDto updateProduct(UUID id, ProductDto updatedProductDto) {
-        Long productId = id.getMostSignificantBits();
+        Long productId = productMapper.uuidToLong(id);
 
         if (!productRepository.existsById(productId)) {
             throw new ProductNotFoundException(id.toString());
@@ -77,7 +77,7 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(UUID id) {
-        Long productId = id.getMostSignificantBits();
+        Long productId = productMapper.uuidToLong(id);
         if (!productRepository.existsById(productId)) {
             return;
         }

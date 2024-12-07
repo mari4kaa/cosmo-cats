@@ -7,7 +7,8 @@ import com.example.cosmocats.projection.ProductReport;
 import com.example.cosmocats.repository.OrderEntryRepository;
 import com.example.cosmocats.repository.OrderRepository;
 import com.example.cosmocats.service.exception.*;
-import com.example.cosmocats.web.exception.CategoryNotFoundException;
+import com.example.cosmocats.service.exception.order.OrderDeletionException;
+import com.example.cosmocats.service.exception.order.OrderUpdateException;
 import com.example.cosmocats.web.exception.OrderNotFoundException;
 
 import lombok.RequiredArgsConstructor;
@@ -93,7 +94,7 @@ public class OrderService {
         }
 
         try {
-            orderRepository.deleteById(id.getMostSignificantBits());
+            orderRepository.deleteById(orderMapper.uuidToLong(id));
         } catch (Exception e) {
             log.error("Failed to delete order '{}': {}", id, e.getMessage());
             throw new OrderDeletionException("Failed to delete order.");

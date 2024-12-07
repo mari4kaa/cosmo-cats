@@ -1,4 +1,4 @@
-package com.example.cosmocats.service.exception;
+package com.example.cosmocats.service.exception.order;
 
 public class OrderUpdateException  extends RuntimeException {
     public OrderUpdateException(String message) {

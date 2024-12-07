@@ -2,6 +2,13 @@ package com.example.cosmocats.web.exception;
 
 import com.example.cosmocats.featuretoggle.exceptions.FeatureNotAvailableException;
 import com.example.cosmocats.service.exception.*;
+import com.example.cosmocats.service.exception.category.CategoryCreationException;
+import com.example.cosmocats.service.exception.category.CategoryDeletionException;
+import com.example.cosmocats.service.exception.category.CategoryUpdateException;
+import com.example.cosmocats.service.exception.order.OrderCreationException;
+import com.example.cosmocats.service.exception.order.OrderDeletionException;
+import com.example.cosmocats.service.exception.order.OrderUpdateException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;

@@ -1,16 +1,13 @@
 package com.example.cosmocats.service;
 
-import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.dto.order.OrderDto;
 import com.example.cosmocats.dto.order.OrderEntryDto;
-import com.example.cosmocats.entities.CategoryEntity;
 import com.example.cosmocats.entities.OrderEntity;
 import com.example.cosmocats.mapper.OrderMapper;
 import com.example.cosmocats.projection.ProductReport;
 import com.example.cosmocats.repository.OrderEntryRepository;
 import com.example.cosmocats.repository.OrderRepository;
-import com.example.cosmocats.service.exception.OrderCreationException;
-import com.example.cosmocats.service.exception.OrderUpdateException;
+import com.example.cosmocats.service.exception.order.OrderUpdateException;
 import com.example.cosmocats.web.exception.OrderNotFoundException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -96,7 +93,7 @@ class OrderServiceTest {
     @Test
     void getOrderById_whenOrderDoesNotExist_shouldReturnEmptyOptional() {
         UUID randUUID = UUID.randomUUID();
-        Long randId = randUUID.getMostSignificantBits();
+        Long randId = orderMapper.uuidToLong(randUUID);
 
         when(orderRepository.findByNaturalId(randId)).thenReturn(Optional.empty());
 

@@ -45,7 +45,7 @@ class CategoryServiceTest {
     void getCategoryById_withValidId_shouldReturnCategory() {
         CategoryEntity categoryEntity = categoryMapper.dtoToEntity(cosmicCategoryDto);
 
-        when(categoryRepository.findById(categoryUUID.getMostSignificantBits())).thenReturn(Optional.of(categoryEntity));
+        when(categoryRepository.findById(categoryMapper.uuidToLong(categoryUUID))).thenReturn(Optional.of(categoryEntity));
 
         Optional<CategoryDto> result = categoryService.getCategoryById(categoryUUID);
 
@@ -55,7 +55,7 @@ class CategoryServiceTest {
 
     @Test
     void getCategoryById_withInvalidId_shouldReturnNull() {
-        when(categoryRepository.findById(categoryUUID.getMostSignificantBits())).thenReturn(Optional.empty());
+        when(categoryRepository.findById(categoryMapper.uuidToLong(categoryUUID))).thenReturn(Optional.empty());
 
         Optional<CategoryDto> result = categoryService.getCategoryById(categoryUUID);
 
@@ -96,8 +96,8 @@ class CategoryServiceTest {
 
         CategoryEntity updatedEntity = categoryMapper.dtoToEntity(updatedCategoryDto);
 
-        when(categoryRepository.existsById(categoryUUID.getMostSignificantBits())).thenReturn(true);
-        when(categoryRepository.findById(categoryUUID.getMostSignificantBits())).thenReturn(Optional.of(updatedEntity));
+        when(categoryRepository.existsById(categoryMapper.uuidToLong(categoryUUID))).thenReturn(true);
+        when(categoryRepository.findById(categoryMapper.uuidToLong(categoryUUID))).thenReturn(Optional.of(updatedEntity));
         when(categoryRepository.save(Mockito.any(CategoryEntity.class))).thenReturn(updatedEntity);
 
         CategoryDto updatedCategory = categoryService.updateCategory(categoryUUID, updatedCategoryDto);
@@ -108,11 +108,11 @@ class CategoryServiceTest {
 
     @Test
     void deleteCategory_withValidId_shouldRemoveCategory() {
-        when(categoryRepository.existsById(categoryUUID.getMostSignificantBits())).thenReturn(true);
-        doNothing().when(categoryRepository).deleteById(categoryUUID.getMostSignificantBits());
+        when(categoryRepository.existsById(categoryMapper.uuidToLong(categoryUUID))).thenReturn(true);
+        doNothing().when(categoryRepository).deleteById(categoryMapper.uuidToLong(categoryUUID));
 
         categoryService.deleteCategory(categoryUUID);
 
-        verify(categoryRepository, times(1)).deleteById(categoryUUID.getMostSignificantBits());
+        verify(categoryRepository, times(1)).deleteById(categoryMapper.uuidToLong(categoryUUID));
     }
 }
