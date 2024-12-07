@@ -72,6 +72,12 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                 "com/example/cosmocats/mapper/*",
+                "com/example/cosmocats/domain/*",
+                "com/example/cosmocats/dto/*",
+                "com/example/cosmocats/entities/*",
+                "**/*Exception.java",
+                "**/*Configuration.java",
+                "**/Application.java",
             ])
         }))
     }
