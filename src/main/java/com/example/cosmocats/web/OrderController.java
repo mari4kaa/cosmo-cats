@@ -50,9 +50,16 @@ public class OrderController {
             List<ProductReport> reports = orderService.findMostFrequentOrderEntries();
             return ResponseEntity.ok(reports);
         }
+
+        @GetMapping("/by-card/{bankCardId}")
+        public ResponseEntity<List<OrderDto>> getAllOrdersByBankCardId(@PathVariable String bankCardId) {
+            log.info("Fetching all orders");
+            List<OrderDto> orders = orderService.getAllOrdersByBankCardId(bankCardId);
+            return ResponseEntity.ok(orders);
+        }
     
         @GetMapping("/{orderId}")
-        public ResponseEntity<OrderDto> getOrder(@PathVariable UUID orderId) {
+        public ResponseEntity<OrderDto> getOrderById(@PathVariable UUID orderId) {
             log.info("Fetching order with ID '{}'", orderId);
             return orderService.getOrderById(orderId)
                     .map(ResponseEntity::ok)

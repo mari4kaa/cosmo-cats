@@ -44,11 +44,19 @@ public class OrderService {
         return orderRepository.findAll().stream()
                 .map(orderMapper::entityToDto)
                 .collect(Collectors.toList());
-        }
+    }
     
     @Transactional(readOnly = true)
     public List <ProductReport> findMostFrequentOrderEntries() {
         return orderEntryRepository.findMostFrequentlyBoughtProducts();
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderDto> getAllOrdersByBankCardId(String bankCardId) {
+        log.info("Fetching all orders for Bank Card ID: {}", bankCardId);
+        return orderRepository.findByBankCardId(bankCardId).stream()
+                .map(orderMapper::entityToDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

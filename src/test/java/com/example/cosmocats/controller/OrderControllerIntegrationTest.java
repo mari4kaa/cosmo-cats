@@ -139,7 +139,7 @@ class OrderControllerIntegrationTest {
     @SneakyThrows
     void testCreateOrder() {
         OrderDto orderDto = OrderDto.builder()
-                .bankCardId("4111 1111 1111 1111")
+                .bankCardId("4111-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -157,7 +157,7 @@ class OrderControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.bankCardId").value("4111 1111 1111 1111"))
+                .andExpect(jsonPath("$.bankCardId").value("4111-1111-1111-1111"))
                 .andExpect(jsonPath("$.price").value(49.98f));
     }
 
@@ -165,7 +165,7 @@ class OrderControllerIntegrationTest {
     @SneakyThrows
     void testCreateOrderInvalidPrice() {
         OrderDto orderDto = OrderDto.builder()
-                .bankCardId("4111 1111 1111 1111")
+                .bankCardId("4111-1111-1111-1111")
                 .price(-10f) // Invalid price
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -191,7 +191,7 @@ class OrderControllerIntegrationTest {
     void testGetOrderById() {
 
         OrderDto existingOrderDto = OrderDto.builder()
-                .bankCardId("4111 1111 1111 1111")
+                .bankCardId("4111-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -209,7 +209,7 @@ class OrderControllerIntegrationTest {
 
         mockMvc.perform(get("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId())))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.bankCardId").value("4111 1111 1111 1111"))
+                .andExpect(jsonPath("$.bankCardId").value("4111-1111-1111-1111"))
                 .andExpect(jsonPath("$.price").value(49.98f));
     }
 
@@ -231,10 +231,10 @@ class OrderControllerIntegrationTest {
 
     @Test
     @SneakyThrows
-    void testGetAllProducts() {
+    void testGetAllOrdersByBankCardId() {
 
         OrderDto orderDto1 = OrderDto.builder()
-                .bankCardId("4111 1111 1111 1111")
+                .bankCardId("4111-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -249,7 +249,50 @@ class OrderControllerIntegrationTest {
                 .build();
 
         OrderDto orderDto2 = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("4111-1111-1111-1111")
+                .price(19.99f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(1)
+                                .build()
+                ))
+                .build();
+
+        OrderEntity orderEntity1 = orderRepository.save(orderMapper.dtoToEntity(orderDto1));
+        OrderEntity orderEntity2 = orderRepository.save(orderMapper.dtoToEntity(orderDto2));
+
+        UUID expectedId1 = orderMapper.longToUuid(orderEntity1.getId());
+        UUID expectedId2 = orderMapper.longToUuid(orderEntity2.getId());
+
+        mockMvc.perform(get("/api/v1/orders/by-card/{bankCardId}", orderEntity1.getBankCardId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))))
+                .andExpect(jsonPath("$[1].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))));
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetAllOrders() {
+
+        OrderDto orderDto1 = OrderDto.builder()
+                .bankCardId("4111-1111-1111-1111")
+                .price(49.98f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product1.getId()))
+                                .quantity(1)
+                                .build(),
+                        OrderEntryDto.builder()
+                                .productId(productMapper.longToUuid(product2.getId()))
+                                .quantity(1)
+                                .build()
+                ))
+                .build();
+
+        OrderDto orderDto2 = OrderDto.builder()
+                .bankCardId("5431-1111-1111-1111")
                 .price(19.99f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -277,7 +320,7 @@ class OrderControllerIntegrationTest {
     @SneakyThrows
     void testUpdateOrder() {
         OrderDto existingOrderDto = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("5431-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -294,7 +337,7 @@ class OrderControllerIntegrationTest {
         OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
 
         OrderDto updatedOrderDto = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("5431-1111-1111-1111")
                 .price(29.99f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -315,7 +358,7 @@ class OrderControllerIntegrationTest {
     @SneakyThrows
     void testUpdateOrderChangeCard() {
         OrderDto existingOrderDto = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("5431-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -332,7 +375,7 @@ class OrderControllerIntegrationTest {
         OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
 
         OrderDto updatedOrderDto = OrderDto.builder()
-                .bankCardId("5431 5555 5555 5555")
+                .bankCardId("5431-5555-5555-5555") // Invalid: changed card number
                 .price(29.99f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -353,7 +396,7 @@ class OrderControllerIntegrationTest {
     @SneakyThrows
     void testUpdateOrderNotFound() {
         OrderDto updatedOrderDto = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("5431-1111-1111-1111")
                 .price(29.99f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -373,7 +416,7 @@ class OrderControllerIntegrationTest {
     @SneakyThrows
     void testDeleteOrder() {
         OrderDto orderDto = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("5431-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -407,7 +450,7 @@ class OrderControllerIntegrationTest {
     void testGetMostFrequentProducts() {
 
         OrderDto orderDto1 = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("5431-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -422,7 +465,7 @@ class OrderControllerIntegrationTest {
                 .build();
 
         OrderDto orderDto2 = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1112")
+                .bankCardId("5431-1111-1111-1112")
                 .price(19.99f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -433,7 +476,7 @@ class OrderControllerIntegrationTest {
                 .build();
 
         OrderDto orderDto3 = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1113")
+                .bankCardId("5431-1111-1111-1113")
                 .price(59.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -474,7 +517,7 @@ class OrderControllerIntegrationTest {
     void testGetMostFrequentProductsTie() {
         // orders with tied frequency
         OrderDto orderDto1 = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1111")
+                .bankCardId("5431-1111-1111-1111")
                 .price(49.98f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
@@ -489,7 +532,7 @@ class OrderControllerIntegrationTest {
                 .build();
 
         OrderDto orderDto2 = OrderDto.builder()
-                .bankCardId("5431 1111 1111 1112")
+                .bankCardId("5431-1111-1111-1112")
                 .price(19.99f)
                 .entryDtos(Arrays.asList(
                         OrderEntryDto.builder()
