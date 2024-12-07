@@ -1,6 +1,7 @@
 package com.example.cosmocats.controller;
 
 import com.example.cosmocats.dto.order.OrderDto;
+import com.example.cosmocats.dto.order.OrderEntryDto;
 import com.example.cosmocats.projection.ProductReport;
 import com.example.cosmocats.service.OrderService;
 import com.example.cosmocats.web.OrderController;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(OrderController.class)
 class OrderControllerTest {
 
-    /*@Autowired
+    @Autowired
     private MockMvc mockMvc;
 
     @MockBean
@@ -38,16 +40,30 @@ class OrderControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private OrderDto validOrderDto;
     private UUID orderId;
+    private OrderDto validOrderDto;
+
+    private UUID productUUID;
 
     @BeforeEach
     void setUp() {
+        productUUID = UUID.randomUUID();
         orderId = UUID.randomUUID();
+
         validOrderDto = OrderDto.builder()
                 .id(orderId)
-                .entryIds(List.of(UUID.randomUUID()))
-                .price(50.0f)
+                .bankCardId("4111-1111-1111-1111")
+                .price(49.98f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productUUID)
+                                .quantity(2)
+                                .build(),
+                        OrderEntryDto.builder()
+                                .productId(productUUID)
+                                .quantity(1)
+                                .build()
+                ))
                 .build();
     }
 
@@ -61,7 +77,8 @@ class OrderControllerTest {
                 .content(objectMapper.writeValueAsString(validOrderDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(orderId.toString()))
-                .andExpect(jsonPath("$.price").value(50.0f));
+                .andExpect(jsonPath("$.price").value(49.98f))
+                .andExpect(jsonPath("$.bankCardId").value("4111-1111-1111-1111"));
     }
 
     @Test
@@ -128,8 +145,14 @@ class OrderControllerTest {
         UUID randId = UUID.randomUUID();
         OrderDto updatedOrderDto = OrderDto.builder()
                 .id(randId)
-                .entryIds(List.of(UUID.randomUUID()))
-                .price(150.0f)
+                .bankCardId("4111-1111-1111-1111")
+                .price(29.99f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productUUID)
+                                .quantity(1)
+                                .build()
+                ))
                 .build();
 
         when(orderService.updateOrder(Mockito.eq(randId), Mockito.any(OrderDto.class))).thenReturn(updatedOrderDto);
@@ -139,7 +162,7 @@ class OrderControllerTest {
                 .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(randId.toString()))
-                .andExpect(jsonPath("$.price").value(150.0f));
+                .andExpect(jsonPath("$.price").value(29.99f));
     }
 
     @Test
@@ -147,12 +170,17 @@ class OrderControllerTest {
     void updateOrder_withInvalidOrderId_shouldReturn404() {
         UUID randId = UUID.randomUUID();
         OrderDto updatedOrderDto = OrderDto.builder()
-                .id(randId)
-                .entryIds(List.of(UUID.randomUUID()))
-                .price(150.0f)
+                .bankCardId("4111-1111-1111-1111")
+                .price(29.99f)
+                .entryDtos(Arrays.asList(
+                        OrderEntryDto.builder()
+                                .productId(productUUID)
+                                .quantity(1)
+                                .build()
+                ))
                 .build();
 
-        when(orderService.updateOrder(Mockito.eq(randId), Mockito.any(OrderDto.class))).thenThrow(new OrderNotFoundException("Order not found"));
+        when(orderService.updateOrder(Mockito.eq(randId), Mockito.any(OrderDto.class))).thenThrow(new OrderNotFoundException(randId.toString()));
 
         mockMvc.perform(put("/api/v1/orders/{orderId}", randId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -166,6 +194,16 @@ class OrderControllerTest {
         Mockito.doNothing().when(orderService).deleteOrder(orderId);
 
         mockMvc.perform(delete("/api/v1/orders/{id}", orderId))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @SneakyThrows
+    void deleteOrder_withInvalidId_shouldReturn204() {
+        UUID randId = UUID.randomUUID();
+        Mockito.doNothing().when(orderService).deleteOrder(randId);
+
+        mockMvc.perform(delete("/api/v1/orders/{id}", randId))
                 .andExpect(status().isNoContent());
     }
 }
@@ -187,5 +225,5 @@ class TestProductReport implements ProductReport {
     @Override
     public Long getTotalQuantity() {
         return totalQuantity;
-    }*/
+    }
 }
