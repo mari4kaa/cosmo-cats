@@ -1,7 +1,6 @@
 package com.example.cosmocats.controller;
 
 import com.example.cosmocats.domain.Category;
-import com.example.cosmocats.domain.Product;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
 import com.example.cosmocats.validation.enums.CosmicOrigins;
@@ -43,7 +42,6 @@ class ProductControllerTest {
     private ObjectMapper objectMapper;
 
     private ProductDto validProductDto;
-    private Product validProduct;
 
     private UUID productUUID;
     private UUID categoryUUID;
@@ -67,21 +65,12 @@ class ProductControllerTest {
                 .origin("Terra")
                 .price(199.99f)
                 .build();
-
-        validProduct = Product.builder()
-                .id(productUUID)
-                .category(category)
-                .name("Cosmic Beam")
-                .description("A cosmic product for stellar journeys.")
-                .origin("Terra")
-                .price(199.99f)
-                .build();
     }
 
     @Test
     @SneakyThrows
     void getProductById_withValidId_shouldReturnProduct() {
-        Mockito.when(productService.getProductById(productUUID)).thenReturn(Optional.of(validProduct));
+        Mockito.when(productService.getProductById(productUUID)).thenReturn(Optional.of(validProductDto));
 
         mockMvc.perform(get(String.format("/api/v1/products/%s", productUUID)))
                 .andExpect(status().isOk())
@@ -105,7 +94,7 @@ class ProductControllerTest {
     @Test
     @SneakyThrows
     void getAllProducts_shouldReturnProductList() {
-        Mockito.when(productService.getAllProducts()).thenReturn(List.of(validProduct));
+        Mockito.when(productService.getAllProducts()).thenReturn(List.of(validProductDto));
 
         mockMvc.perform(get("/api/v1/products"))
                 .andExpect(status().isOk())
@@ -116,26 +105,15 @@ class ProductControllerTest {
     @Test
     @SneakyThrows
     void createProduct_withValidData_shouldReturn200() {
-        Mockito.when(productService.createProduct(Mockito.any(Product.class))).thenReturn(validProduct);
+        Mockito.when(productService.createProduct(Mockito.any(ProductDto.class))).thenReturn(validProductDto);
 
         mockMvc.perform(post("/api/v1/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validProductDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Cosmic Beam"))
                 .andExpect(jsonPath("$.origin").value("Terra"))
                 .andExpect(jsonPath("$.price").value(199.99));
-    }
-
-    @Test
-    @SneakyThrows
-    void updateProduct_withValidUpdatedData_shouldReturn200() {
-        Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProduct);
-        mockMvc.perform(put(String.format("/api/v1/products/%s", productUUID))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(validProductDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Cosmic Beam"));
     }
 
     @Test
@@ -235,6 +213,17 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.detail")
                         .value("Validation failed: description: Description cannot exceed 500 characters"))
                 .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
+    }
+
+    @Test
+    @SneakyThrows
+    void updateProduct_withValidUpdatedData_shouldReturn200() {
+        Mockito.when(productService.updateProduct(Mockito.eq(productUUID), Mockito.any())).thenReturn(validProductDto);
+        mockMvc.perform(put(String.format("/api/v1/products/%s", productUUID))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validProductDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Cosmic Beam"));
     }
 
     @Test
