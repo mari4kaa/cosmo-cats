@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -61,6 +62,10 @@ public class OrderService {
     public OrderDto updateOrder(UUID id, OrderDto updatedOrderDto) {
         OrderEntity existingEntity = orderRepository.findById(orderMapper.uuidToLong(id))
             .orElseThrow(() -> new OrderNotFoundException(id.toString()));
+
+        if(!Objects.equals(updatedOrderDto.getBankCardId(), existingEntity.getBankCardId())) {
+            throw new OrderUpdateException("The bank card ID cannot be changed in the order");
+        }
 
         try {
             orderMapper.updateEntityFromDto(updatedOrderDto, existingEntity);

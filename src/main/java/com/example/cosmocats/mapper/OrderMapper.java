@@ -24,7 +24,7 @@ public interface OrderMapper {
     @Mapping(target = "entries", source = "entryDtos")
     Order dtoToOrder(OrderDto dto);
 
-    @Mapping(target = "naturalId", ignore = true) // naturalId is not overwritten during update
+    @Mapping(target = "bankCardId", ignore = true) // BankCardId is not overwritten during update
     void updateEntityFromDto(OrderDto dto, @MappingTarget OrderEntity entity);
 
     @Mapping(target = "id", expression = "java(uuidToLong(dto.getId()))")
@@ -32,7 +32,7 @@ public interface OrderMapper {
     default OrderEntity dtoToEntity(OrderDto dto) {
         OrderEntity orderEntity = new OrderEntity();
         
-        orderEntity.setNaturalId(dto.getId() != null ? dto.getId() : UUID.randomUUID());
+        orderEntity.setBankCardId(dto.getBankCardId());
         
         orderEntity.setPrice(dto.getPrice());
 

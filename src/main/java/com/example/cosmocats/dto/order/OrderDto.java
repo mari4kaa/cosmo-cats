@@ -13,6 +13,9 @@ import lombok.Value;
 public class OrderDto {
     UUID id;
 
+    @NotEmpty(message = "Bank card ID should not be empty")
+    String bankCardId;
+
     @NotEmpty(message = "Order must contain at least one entry")
     List<OrderEntryDto> entryDtos;
 

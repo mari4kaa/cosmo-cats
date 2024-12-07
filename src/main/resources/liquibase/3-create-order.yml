@@ -17,10 +17,9 @@ databaseChangeLog:
                   constraints:
                     primaryKey: true
               - column:
-                  name: natural_id
-                  type: UUID
+                  name: bank_card_id
+                  type: VARCHAR(255)
                   constraints:
-                    unique: true
                     nullable: false
               - column:
                   name: price

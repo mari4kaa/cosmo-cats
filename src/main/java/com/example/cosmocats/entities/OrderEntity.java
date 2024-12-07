@@ -22,8 +22,8 @@ public class OrderEntity {
     private Long id;
 
     @NaturalId
-    @Column(nullable = false, unique = true)
-    private UUID naturalId;
+    @Column(nullable = false)
+    private String bankCardId;
 
     @Column(nullable = false)
     private Float price;

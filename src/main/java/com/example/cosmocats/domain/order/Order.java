@@ -12,4 +12,5 @@ public class Order {
     UUID id;
     List<OrderEntry> entries;
     float price;
+    String bankCardId;
 }
