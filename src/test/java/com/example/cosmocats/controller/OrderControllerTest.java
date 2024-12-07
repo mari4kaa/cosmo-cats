@@ -142,9 +142,8 @@ class OrderControllerTest {
     @Test
     @SneakyThrows
     void updateOrder_withValidData_shouldReturnUpdatedOrder() {
-        UUID randId = UUID.randomUUID();
         OrderDto updatedOrderDto = OrderDto.builder()
-                .id(randId)
+                .id(orderId)
                 .bankCardId("4111-1111-1111-1111")
                 .price(29.99f)
                 .entryDtos(Arrays.asList(
@@ -155,13 +154,13 @@ class OrderControllerTest {
                 ))
                 .build();
 
-        when(orderService.updateOrder(Mockito.eq(randId), Mockito.any(OrderDto.class))).thenReturn(updatedOrderDto);
+        when(orderService.updateOrder(Mockito.eq(orderId), Mockito.any(OrderDto.class))).thenReturn(updatedOrderDto);
 
-        mockMvc.perform(put("/api/v1/orders/{orderId}", randId)
+        mockMvc.perform(put("/api/v1/orders/{orderId}", orderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(randId.toString()))
+                .andExpect(jsonPath("$.id").value(orderId.toString()))
                 .andExpect(jsonPath("$.price").value(29.99f));
     }
 
