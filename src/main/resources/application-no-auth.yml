@@ -1,0 +1,5 @@
+auth:
+  claims:
+    galaxy: m-31
+    email_verified: true
+    email: hood_cat@gmail.com # because google
