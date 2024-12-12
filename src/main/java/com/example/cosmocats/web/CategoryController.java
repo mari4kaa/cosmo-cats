@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @PostMapping
     public ResponseEntity<CategoryDto> createCategory(@RequestBody @Valid CategoryDto categoryDto) {
         log.info("Creating category with name: '{}'", categoryDto.getName());
@@ -56,6 +58,7 @@ public class CategoryController {
             .orElseThrow(() -> new CategoryNotFoundException(id.toString()));
     }
 
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @PutMapping("/{categoryId}")
     public ResponseEntity<CategoryDto> updateCategory(@PathVariable UUID categoryId, @RequestBody @Valid CategoryDto categoryDto) {
         log.info("Updating category with ID: '{}'", categoryId);
@@ -69,6 +72,7 @@ public class CategoryController {
         }
     }
 
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID categoryId) {
         log.info("Deleting category with ID: '{}'", categoryId);
