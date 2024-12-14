@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: maksym
+      changes:
+        - createSequence:
+            sequenceName: order_id_seq
+            startValue: 1
+            incrementBy: 50
+
+        - createTable:
+            tableName: order
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: bank_card_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: FLOAT
+                  constraints:
+                    nullable: false

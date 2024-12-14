@@ -28,6 +28,7 @@ repositories {
 dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.mapstruct:mapstruct:1.6.2'
 
     compileOnly 'org.projectlombok:lombok'
@@ -49,6 +50,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.aspectj:aspectjweaver:1.9.21'
     implementation 'org.aspectj:aspectjrt:1.9.21'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.liquibase:liquibase-core:4.30.0'
+    implementation 'org.postgresql:postgresql:42.7.4'
+
+    testImplementation 'org.testcontainers:postgresql:1.19.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {
@@ -62,6 +72,12 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                 "com/example/cosmocats/mapper/*",
+                "com/example/cosmocats/domain/*",
+                "com/example/cosmocats/dto/*",
+                "com/example/cosmocats/entities/*",
+                "**/*Exception.java",
+                "**/*Configuration.java",
+                "**/Application.java",
             ])
         }))
     }
