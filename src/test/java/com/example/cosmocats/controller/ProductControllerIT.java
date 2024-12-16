@@ -41,7 +41,7 @@ import java.util.UUID;
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-class ProductControllerIntegrationTest {
+class ProductControllerIT {
 
         static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
         .withDatabaseName("testdb")
