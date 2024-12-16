@@ -46,7 +46,6 @@ import static org.hamcrest.Matchers.*;
 @AutoConfigureMockMvc
 class OrderControllerIntegrationTest {
 
-    @SuppressWarnings("resource")
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
             .withDatabaseName("testdb")
             .withUsername("testuser")

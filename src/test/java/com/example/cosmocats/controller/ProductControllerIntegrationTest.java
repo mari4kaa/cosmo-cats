@@ -43,7 +43,6 @@ import java.util.UUID;
 @AutoConfigureMockMvc
 class ProductControllerIntegrationTest {
 
-        @SuppressWarnings("resource")
         static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
         .withDatabaseName("testdb")
         .withUsername("testuser")

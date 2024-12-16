@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -37,7 +38,6 @@ import java.util.UUID;
 @AutoConfigureMockMvc
 class CategoryControllerIntegrationTest {
 
-    @SuppressWarnings("resource")
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
             .withDatabaseName("testdb")
             .withUsername("testuser")
@@ -83,6 +83,7 @@ class CategoryControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testCreateCategoryValid() {
         CategoryDto validCategory = CategoryDto.builder()
@@ -97,6 +98,7 @@ class CategoryControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testCreateCategoryDuplicateName() {
         CategoryEntity category = CategoryEntity.builder()
@@ -163,6 +165,7 @@ class CategoryControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testUpdateCategory() {
         CategoryEntity existingCategoryEntity = categoryRepository.save(CategoryEntity.builder()
@@ -183,6 +186,7 @@ class CategoryControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testUpdateCategoryNotFound() {
         UUID invalidId = UUID.randomUUID();
@@ -200,6 +204,7 @@ class CategoryControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testDeleteCategory() {
         CategoryEntity category = categoryRepository.save(CategoryEntity.builder()
@@ -215,6 +220,7 @@ class CategoryControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testDeleteCategoryNotFound() {
         UUID invalidId = UUID.randomUUID();
