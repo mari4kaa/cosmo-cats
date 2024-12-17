@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -37,8 +38,13 @@ public class NoAuthSecurityConfiguration {
     @Bean
     @Order(Integer.MIN_VALUE)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        log.warn("All requests are permitted");
-        http.csrf(CsrfConfigurer::disable);
+        log.warn("All requests are permitted in no-auth profile");
+        http
+            .csrf(CsrfConfigurer::disable)
+            .authorizeHttpRequests(authorize -> authorize
+                .anyRequest().permitAll()
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 

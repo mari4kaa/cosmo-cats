@@ -1,12 +1,12 @@
 package com.example.cosmocats.controller;
 
+import com.example.cosmocats.config.noauth.NoAuthSecurityConfiguration;
 import com.example.cosmocats.domain.CatInfo;
 import com.example.cosmocats.featuretoggle.FeatureToggles;
 import com.example.cosmocats.featuretoggle.aspect.FeatureToggleAspect;
 import com.example.cosmocats.featuretoggle.service.FeatureToggleService;
 import com.example.cosmocats.service.CosmoCatService;
 import com.example.cosmocats.web.CosmoCatController;
-
 import lombok.SneakyThrows;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -26,8 +27,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ActiveProfiles("no-auth")
 @WebMvcTest(CosmoCatController.class)
-@Import(FeatureToggleAspect.class)
+@Import({FeatureToggleAspect.class, NoAuthSecurityConfiguration.class})
 class CosmoCatControllerTest {
 
     @Autowired

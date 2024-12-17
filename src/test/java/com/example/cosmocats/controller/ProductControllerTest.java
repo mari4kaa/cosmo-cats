@@ -1,5 +1,6 @@
 package com.example.cosmocats.controller;
 
+import com.example.cosmocats.config.noauth.NoAuthSecurityConfiguration;
 import com.example.cosmocats.domain.Category;
 import com.example.cosmocats.dto.ProductDto;
 import com.example.cosmocats.service.ProductService;
@@ -16,7 +17,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +32,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@ActiveProfiles("no-auth")
 @WebMvcTest(ProductController.class)
+@Import({NoAuthSecurityConfiguration.class})
 class ProductControllerTest {
 
     @Autowired
