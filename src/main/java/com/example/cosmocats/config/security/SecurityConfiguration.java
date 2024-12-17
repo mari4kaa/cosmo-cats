@@ -19,17 +19,17 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration {
 
-    private static final String API_V_1_ORDERS = "/api/v1/internal/**";
+    private static final String API_V_1_CATEGORIES = "/api/v1/admin/**";
 
     @Bean
     @Order(1)
-    public SecurityFilterChain filterChainOrdersV1(HttpSecurity http, JwtDecoder decoder) throws Exception {
-        http.securityMatcher(API_V_1_ORDERS)
+    public SecurityFilterChain filterChainCategoriesV1(HttpSecurity http, JwtDecoder decoder) throws Exception {
+        http.securityMatcher(API_V_1_CATEGORIES)
             .cors(withDefaults())
             .csrf(CsrfConfigurer::disable)
             .addFilterBefore(new CosmicKeyFilter(decoder), UsernamePasswordAuthenticationFilter.class)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authorize -> authorize.requestMatchers(antMatcher(API_V_1_ORDERS)).authenticated())
+            .authorizeHttpRequests(authorize -> authorize.requestMatchers(antMatcher(API_V_1_CATEGORIES)).authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
 
         return http.build();

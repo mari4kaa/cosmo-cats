@@ -90,7 +90,7 @@ class CategoryControllerIT {
                 .name("Galactic Supplies")
                 .build();
 
-        mockMvc.perform(post("/api/v1/categories")
+        mockMvc.perform(post("/api/v1/admin/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validCategory)))
                 .andExpect(status().isCreated())
@@ -110,7 +110,7 @@ class CategoryControllerIT {
                 .name("Cosmic Goods")
                 .build();
 
-        mockMvc.perform(post("/api/v1/categories")
+        mockMvc.perform(post("/api/v1/admin/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(duplicateCategory)))
                 .andExpect(status().isBadRequest())
@@ -129,7 +129,7 @@ class CategoryControllerIT {
                 .name("Orbital Tools")
                 .build());
 
-        mockMvc.perform(get("/api/v1/categories")
+        mockMvc.perform(get("/api/v1/admin/categories")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -146,7 +146,7 @@ class CategoryControllerIT {
 
         CategoryDto categoryDto = categoryMapper.entityToDto(category);
 
-        mockMvc.perform(get("/api/v1/categories/{id}", categoryDto.getId())
+        mockMvc.perform(get("/api/v1/admin/categories/{id}", categoryDto.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(category.getName()));
@@ -157,7 +157,7 @@ class CategoryControllerIT {
     void testGetCategoryByIdNotFound() {
         UUID invalidId = UUID.randomUUID();
 
-        mockMvc.perform(get("/api/v1/categories/{id}", invalidId)
+        mockMvc.perform(get("/api/v1/admin/categories/{id}", invalidId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
@@ -178,7 +178,7 @@ class CategoryControllerIT {
 
         CategoryDto existingCategoryDto = categoryMapper.entityToDto(existingCategoryEntity);
 
-        mockMvc.perform(put("/api/v1/categories/{id}", existingCategoryDto.getId())
+        mockMvc.perform(put("/api/v1/admin/categories/{id}", existingCategoryDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedCategory)))
                 .andExpect(status().isOk())
@@ -195,7 +195,7 @@ class CategoryControllerIT {
                 .name("New Name")
                 .build();
 
-        mockMvc.perform(put("/api/v1/categories/{id}", invalidId)
+        mockMvc.perform(put("/api/v1/admin/categories/{id}", invalidId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedCategory)))
                 .andExpect(status().isNotFound())
@@ -213,7 +213,7 @@ class CategoryControllerIT {
 
         CategoryDto categoryDto = categoryMapper.entityToDto(category);
 
-        mockMvc.perform(delete("/api/v1/categories/{id}", categoryDto.getId()))
+        mockMvc.perform(delete("/api/v1/admin/categories/{id}", categoryDto.getId()))
                 .andExpect(status().isNoContent());
 
         assertFalse(categoryRepository.findById(category.getId()).isPresent());
@@ -225,14 +225,14 @@ class CategoryControllerIT {
     void testDeleteCategoryNotFound() {
         UUID invalidId = UUID.randomUUID();
 
-        mockMvc.perform(delete("/api/v1/categories/{id}", invalidId))
+        mockMvc.perform(delete("/api/v1/admin/categories/{id}", invalidId))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     @SneakyThrows
     void testAccessWithoutAuthenticationCredentials() {
-        mockMvc.perform(post("/api/v1/categories")
+        mockMvc.perform(post("/api/v1/admin/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(CategoryDto.builder().name("No Credentials").build())))
                 .andExpect(status().isUnauthorized())
@@ -245,7 +245,7 @@ class CategoryControllerIT {
     @WithMockUser(roles = "WRONG_ROLE")
     @SneakyThrows
     void testAccessWithIncorrectRole() {
-        mockMvc.perform(post("/api/v1/categories")
+        mockMvc.perform(post("/api/v1/admin/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(CategoryDto.builder().name("Unauthorized").build())))
                 .andExpect(status().isForbidden())
@@ -262,7 +262,7 @@ class CategoryControllerIT {
                 .name("Authorized Access")
                 .build();
 
-        mockMvc.perform(post("/api/v1/categories")
+        mockMvc.perform(post("/api/v1/admin/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validCategory)))
                 .andExpect(status().isCreated())
