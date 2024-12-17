@@ -228,4 +228,44 @@ class CategoryControllerIT {
         mockMvc.perform(delete("/api/v1/categories/{id}", invalidId))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    @SneakyThrows
+    void testAccessWithoutAuthenticationCredentials() {
+        mockMvc.perform(post("/api/v1/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(CategoryDto.builder().name("No Credentials").build())))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title").value("Authentication required"))
+                .andExpect(jsonPath("$.detail").value("No authentication credentials were found"));
+    }
+
+
+    @Test
+    @WithMockUser(roles = "WRONG_ROLE")
+    @SneakyThrows
+    void testAccessWithIncorrectRole() {
+        mockMvc.perform(post("/api/v1/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(CategoryDto.builder().name("Unauthorized").build())))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.detail").value("Access Denied"));
+    }
+    
+
+    @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
+    @SneakyThrows
+    void testAccessWithCorrectRole() {
+        CategoryDto validCategory = CategoryDto.builder()
+                .name("Authorized Access")
+                .build();
+
+        mockMvc.perform(post("/api/v1/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validCategory)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Authorized Access"));
+    }
 }
