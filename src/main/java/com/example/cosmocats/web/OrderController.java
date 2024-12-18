@@ -3,7 +3,6 @@ package com.example.cosmocats.web;
 import com.example.cosmocats.dto.order.OrderDto;
 import com.example.cosmocats.projection.ProductReport;
 import com.example.cosmocats.service.OrderService;
-import com.example.cosmocats.service.exception.*;
 import com.example.cosmocats.service.exception.order.OrderCreationException;
 import com.example.cosmocats.service.exception.order.OrderDeletionException;
 import com.example.cosmocats.service.exception.order.OrderUpdateException;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/api/v1/internal/orders")
 @Slf4j
 public class OrderController {
 

@@ -153,7 +153,7 @@ class OrderControllerIT {
                                 .build()))
                 .build();
 
-        mockMvc.perform(post("/api/v1/orders")
+        mockMvc.perform(post("/api/v1/internal/orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(orderDto)))
                 .andExpect(status().isCreated())
@@ -179,7 +179,7 @@ class OrderControllerIT {
                                 .build()))
                 .build();
 
-        mockMvc.perform(post("/api/v1/orders")
+        mockMvc.perform(post("/api/v1/internal/orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(orderDto)))
                 .andExpect(status().isBadRequest())
@@ -208,7 +208,7 @@ class OrderControllerIT {
 
         OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
 
-        mockMvc.perform(get("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId())))
+        mockMvc.perform(get("/api/v1/internal/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.bankCardId").value("4111-1111-1111-1111"))
                 .andExpect(jsonPath("$.price").value(49.98f));
@@ -218,7 +218,7 @@ class OrderControllerIT {
     @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetOrderNotFound() {
-        mockMvc.perform(get("/api/v1/orders/{id}", UUID.randomUUID()))
+        mockMvc.perform(get("/api/v1/internal/orders/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound());
     }
 
@@ -226,7 +226,7 @@ class OrderControllerIT {
     @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetAllOrdersEmpty() {
-        mockMvc.perform(get("/api/v1/orders")
+        mockMvc.perform(get("/api/v1/internal/orders")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
@@ -267,7 +267,7 @@ class OrderControllerIT {
         UUID expectedId1 = orderMapper.longToUuid(orderEntity1.getId());
         UUID expectedId2 = orderMapper.longToUuid(orderEntity2.getId());
 
-        mockMvc.perform(get("/api/v1/orders/by-card/{bankCardId}", orderEntity1.getBankCardId()))
+        mockMvc.perform(get("/api/v1/internal/orders/by-card/{bankCardId}", orderEntity1.getBankCardId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id",
@@ -311,7 +311,7 @@ class OrderControllerIT {
         UUID expectedId1 = orderMapper.longToUuid(orderEntity1.getId());
         UUID expectedId2 = orderMapper.longToUuid(orderEntity2.getId());
 
-        mockMvc.perform(get("/api/v1/orders")
+        mockMvc.perform(get("/api/v1/internal/orders")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -351,7 +351,7 @@ class OrderControllerIT {
                                 .build()))
                 .build();
 
-        mockMvc.perform(put("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
+        mockMvc.perform(put("/api/v1/internal/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isOk())
@@ -388,7 +388,7 @@ class OrderControllerIT {
                                 .build()))
                 .build();
 
-        mockMvc.perform(put("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
+        mockMvc.perform(put("/api/v1/internal/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isBadRequest())
@@ -410,7 +410,7 @@ class OrderControllerIT {
                                 .build()))
                 .build();
 
-        mockMvc.perform(put("/api/v1/orders/{id}", UUID.randomUUID())
+        mockMvc.perform(put("/api/v1/internal/orders/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isNotFound());
@@ -436,7 +436,7 @@ class OrderControllerIT {
 
         OrderEntity orderEntity = orderRepository.save(orderMapper.dtoToEntity(orderDto));
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", orderMapper.longToUuid(orderEntity.getId())))
+        mockMvc.perform(delete("/api/v1/internal/orders/{id}", orderMapper.longToUuid(orderEntity.getId())))
                 .andExpect(status().isNoContent());
 
         assertFalse(orderRepository.existsById(orderEntity.getId()));
@@ -446,7 +446,7 @@ class OrderControllerIT {
     @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testDeleteOrderNotFound() {
-        mockMvc.perform(delete("/api/v1/orders/{id}", UUID.randomUUID()))
+        mockMvc.perform(delete("/api/v1/internal/orders/{id}", UUID.randomUUID()))
                 .andExpect(status().isNoContent());
     }
 
@@ -497,7 +497,7 @@ class OrderControllerIT {
         orderRepository.save(orderMapper.dtoToEntity(orderDto2));
         orderRepository.save(orderMapper.dtoToEntity(orderDto3));
 
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3)) // Expect all three products
@@ -516,7 +516,7 @@ class OrderControllerIT {
     @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetMostFrequentProductsNoOrders() {
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0)); // No orders, so no products returned
@@ -554,7 +554,7 @@ class OrderControllerIT {
         orderRepository.save(orderMapper.dtoToEntity(orderDto1));
         orderRepository.save(orderMapper.dtoToEntity(orderDto2));
 
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2)) // Expect two products
@@ -567,7 +567,7 @@ class OrderControllerIT {
     @Test
     @SneakyThrows
     void testAccessWithoutAuthenticationCredentials() {
-        mockMvc.perform(get("/api/v1/orders"))
+        mockMvc.perform(get("/api/v1/internal/orders"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.title").value("Authentication required"))
                 .andExpect(jsonPath("$.detail").value("No authentication credentials were found"));
@@ -577,7 +577,7 @@ class OrderControllerIT {
     @WithMockUser(roles = "WRONG_ROLE")
     @SneakyThrows
     void testAccessWithIncorrectRole() {
-        mockMvc.perform(get("/api/v1/orders"))
+        mockMvc.perform(get("/api/v1/internal/orders"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.title").value("Forbidden"))
                 .andExpect(jsonPath("$.detail").value("Access Denied"));
@@ -587,7 +587,7 @@ class OrderControllerIT {
     @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testAccessWithCorrectRole() {
-        mockMvc.perform(get("/api/v1/orders"))
+        mockMvc.perform(get("/api/v1/internal/orders"))
                 .andExpect(status().isOk());
     }
 }

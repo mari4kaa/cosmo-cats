@@ -77,7 +77,7 @@ class OrderControllerTest {
     void createOrder_withValidData_shouldReturn201() {
         Mockito.when(orderService.createOrder(Mockito.any(OrderDto.class))).thenReturn(validOrderDto);
 
-        mockMvc.perform(post("/api/v1/orders")
+        mockMvc.perform(post("/api/v1/internal/orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validOrderDto)))
                 .andExpect(status().isCreated())
@@ -91,7 +91,7 @@ class OrderControllerTest {
     void getOrderById_withValidId_shouldReturnOrder() {
         Mockito.when(orderService.getOrderById(orderId)).thenReturn(Optional.of(validOrderDto));
 
-        mockMvc.perform(get("/api/v1/orders/{id}", orderId))
+        mockMvc.perform(get("/api/v1/internal/orders/{id}", orderId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(orderId.toString()));
     }
@@ -101,7 +101,7 @@ class OrderControllerTest {
     void getOrderById_withInvalidId_shouldReturn404() {
         Mockito.when(orderService.getOrderById(Mockito.any(UUID.class))).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/orders/{id}", UUID.randomUUID()))
+        mockMvc.perform(get("/api/v1/internal/orders/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound());
     }
 
@@ -110,7 +110,7 @@ class OrderControllerTest {
     void getAllOrders_shouldReturnOrderList() {
         Mockito.when(orderService.getAllOrders()).thenReturn(List.of(validOrderDto));
 
-        mockMvc.perform(get("/api/v1/orders"))
+        mockMvc.perform(get("/api/v1/internal/orders"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1));
     }
@@ -124,7 +124,7 @@ class OrderControllerTest {
 
         when(orderService.findMostFrequentOrderEntries()).thenReturn(mockReports);
 
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries"))
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].productName").value("Cosmic Yarn"))
@@ -139,7 +139,7 @@ class OrderControllerTest {
 
         when(orderService.findMostFrequentOrderEntries()).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries"))
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -161,7 +161,7 @@ class OrderControllerTest {
 
         when(orderService.updateOrder(Mockito.eq(orderId), Mockito.any(OrderDto.class))).thenReturn(updatedOrderDto);
 
-        mockMvc.perform(put("/api/v1/orders/{orderId}", orderId)
+        mockMvc.perform(put("/api/v1/internal/orders/{orderId}", orderId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isOk())
@@ -186,7 +186,7 @@ class OrderControllerTest {
 
         when(orderService.updateOrder(Mockito.eq(randId), Mockito.any(OrderDto.class))).thenThrow(new OrderNotFoundException(randId.toString()));
 
-        mockMvc.perform(put("/api/v1/orders/{orderId}", randId)
+        mockMvc.perform(put("/api/v1/internal/orders/{orderId}", randId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isNotFound());
@@ -197,7 +197,7 @@ class OrderControllerTest {
     void deleteOrder_withValidId_shouldReturn204() {
         Mockito.doNothing().when(orderService).deleteOrder(orderId);
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", orderId))
+        mockMvc.perform(delete("/api/v1/internal/orders/{id}", orderId))
                 .andExpect(status().isNoContent());
     }
 
@@ -207,7 +207,7 @@ class OrderControllerTest {
         UUID randId = UUID.randomUUID();
         Mockito.doNothing().when(orderService).deleteOrder(randId);
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", randId))
+        mockMvc.perform(delete("/api/v1/internal/orders/{id}", randId))
                 .andExpect(status().isNoContent());
     }
 }

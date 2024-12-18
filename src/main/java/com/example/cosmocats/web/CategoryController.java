@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/v1/admin/categories")
+@RequestMapping("/api/v1/internal/categories")
 @Slf4j
 public class CategoryController {
 
@@ -43,7 +43,7 @@ public class CategoryController {
         }
     }
 
-    @PreAuthorize("hasRole('IMPORTANT_CAT')")
+    @PreAuthorize("hasRole('BASIC_CAT') or hasRole('IMPORTANT_CAT')")
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
         log.info("Fetching all categories");
@@ -51,7 +51,7 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-    @PreAuthorize("hasRole('IMPORTANT_CAT')")
+    @PreAuthorize("hasRole('BASIC_CAT') or hasRole('IMPORTANT_CAT')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable UUID id) {
         log.info("Fetching categories with ID '{}'", id);

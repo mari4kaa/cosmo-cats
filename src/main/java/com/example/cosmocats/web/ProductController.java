@@ -20,13 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Validated
-@RequestMapping("/api/v1/products")
+@RequestMapping("/api/v1/internal/products")
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {
     private final ProductService productService;
 
-    @PreAuthorize("hasRole('BASIC_CAT')")
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
         try {
@@ -58,7 +58,7 @@ public class ProductController {
             .orElseThrow(() -> new ProductNotFoundException(id.toString()));
     }
 
-    @PreAuthorize("hasRole('BASIC_CAT')")
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductDto> updateProduct(
             @PathVariable UUID id, 
@@ -76,7 +76,7 @@ public class ProductController {
         }
     }
 
-    @PreAuthorize("hasRole('BASIC_CAT')")
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         try {
