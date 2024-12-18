@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.example.cosmocats.web.exception.ProductNotFoundException;
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductController {
     private final ProductService productService;
 
+    @PreAuthorize("hasRole('BASIC_CAT')")
     @PostMapping
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
         try {
@@ -39,6 +41,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasRole('BASIC_CAT')")
     @GetMapping
         public ResponseEntity<List<ProductDto>> getAllProducts() {
             log.info("Fetching all products");
@@ -46,6 +49,7 @@ public class ProductController {
             return ResponseEntity.ok(products);
         }
 
+    @PreAuthorize("hasRole('BASIC_CAT')")
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProduct(@PathVariable UUID id) {
         log.info("Fetching product with ID '{}'", id);
@@ -54,6 +58,7 @@ public class ProductController {
             .orElseThrow(() -> new ProductNotFoundException(id.toString()));
     }
 
+    @PreAuthorize("hasRole('BASIC_CAT')")
     @PutMapping("/{id}")
     public ResponseEntity<ProductDto> updateProduct(
             @PathVariable UUID id, 
@@ -71,6 +76,7 @@ public class ProductController {
         }
     }
 
+    @PreAuthorize("hasRole('BASIC_CAT')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         try {

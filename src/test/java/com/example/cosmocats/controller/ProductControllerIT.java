@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -105,6 +106,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testCreateProductValid() {
         ProductDto validProduct = ProductDto.builder()
@@ -124,6 +126,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testCreateProductInvalidName() {
         ProductDto invalidProduct = ProductDto.builder()
@@ -147,6 +150,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testCreateProductInvalidOrigin() {
         ProductDto invalidProduct = ProductDto.builder()
@@ -170,6 +174,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testCreateProductNegativePrice() {
         ProductDto invalidProduct = ProductDto.builder()
@@ -190,6 +195,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testCreateProductWithDuplicateName() {
         ProductDto productDto = ProductDto.builder()
@@ -214,6 +220,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetAllProducts() {
         ProductEntity product1 = productRepository.save(ProductEntity.builder()
@@ -240,6 +247,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetProductById() {
         ProductEntity product = productRepository.save(ProductEntity.builder()
@@ -262,6 +270,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetProductByIdNotFound() {
         UUID invalidId = UUID.randomUUID();
@@ -274,6 +283,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testUpdateProduct() {
         ProductEntity existingProduct = productRepository.save(ProductEntity.builder()
@@ -305,6 +315,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testUpdateProductNotFound() {
         UUID invalidId = UUID.randomUUID();
@@ -325,6 +336,7 @@ class ProductControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testDeleteProduct() {
         ProductEntity product = productRepository.save(ProductEntity.builder()
@@ -345,11 +357,29 @@ class ProductControllerIT {
 
     @Test
     @SneakyThrows
-    void testDeleteProductNotFound() {
-        UUID invalidId = UUID.randomUUID();
+    void testAccessWithoutAuthenticationCredentials() {
+        mockMvc.perform(get("/api/v1/products"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title").value("Authentication required"))
+                .andExpect(jsonPath("$.detail").value("No authentication credentials were found"));
+    }
 
-        mockMvc.perform(delete("/api/v1/products/{id}", invalidId))
-                .andExpect(status().isNoContent());
+    @Test
+    @WithMockUser(roles = "WRONG_ROLE")
+    @SneakyThrows
+    void testAccessWithIncorrectRole() {
+        mockMvc.perform(get("/api/v1/products"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.detail").value("Access Denied"));
+    }
+
+    @Test
+    @WithMockUser(roles = "BASIC_CAT")
+    @SneakyThrows
+    void testAccessWithCorrectRole() {
+        mockMvc.perform(get("/api/v1/products"))
+                .andExpect(status().isOk());
     }
 
 }

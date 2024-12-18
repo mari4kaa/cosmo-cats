@@ -120,6 +120,7 @@ class CategoryControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testGetAllCategories() {
         CategoryEntity category1 = categoryRepository.save(CategoryEntity.builder()
@@ -138,6 +139,7 @@ class CategoryControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testGetCategoryById() {
         CategoryEntity category = categoryRepository.save(CategoryEntity.builder()
@@ -153,6 +155,7 @@ class CategoryControllerIT {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testGetCategoryByIdNotFound() {
         UUID invalidId = UUID.randomUUID();

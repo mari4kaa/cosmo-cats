@@ -43,6 +43,7 @@ public class CategoryController {
         }
     }
 
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @GetMapping
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
         log.info("Fetching all categories");
@@ -50,6 +51,7 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
+    @PreAuthorize("hasRole('IMPORTANT_CAT')")
     @GetMapping("/{id}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable UUID id) {
         log.info("Fetching categories with ID '{}'", id);
