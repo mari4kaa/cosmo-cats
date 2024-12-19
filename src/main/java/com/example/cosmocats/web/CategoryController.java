@@ -19,7 +19,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/v1/internal/categories")
+@RequestMapping("/api/v1/admin/categories")
 @Slf4j
 public class CategoryController {
 

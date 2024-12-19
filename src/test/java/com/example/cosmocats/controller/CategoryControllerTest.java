@@ -60,7 +60,7 @@ class CategoryControllerTest {
         Mockito.when(categoryService.getCategoryById(categoryUUID))
                 .thenReturn(Optional.of(cosmicCategoryDto));
 
-        mockMvc.perform(get("/api/v1/internal/categories/{id}", categoryUUID))
+        mockMvc.perform(get("/api/v1/admin/categories/{id}", categoryUUID))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Interstellar Supplies"));
     }
@@ -71,7 +71,7 @@ class CategoryControllerTest {
         UUID nonExistentUUID = UUID.randomUUID();
         Mockito.when(categoryService.getCategoryById(nonExistentUUID)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/v1/internal/categories/{id}", nonExistentUUID))
+        mockMvc.perform(get("/api/v1/admin/categories/{id}", nonExistentUUID))
                 .andExpect(status().isNotFound());
     }
 
@@ -80,7 +80,7 @@ class CategoryControllerTest {
     void getAllCategories_shouldReturnCategoryList() {
         Mockito.when(categoryService.getAllCategories()).thenReturn(List.of(cosmicCategoryDto));
 
-        mockMvc.perform(get("/api/v1/internal/categories"))
+        mockMvc.perform(get("/api/v1/admin/categories"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Interstellar Supplies"));
@@ -92,7 +92,7 @@ class CategoryControllerTest {
         Mockito.when(categoryService.createCategory(Mockito.any(CategoryDto.class)))
                 .thenReturn(cosmicCategoryDto);
 
-        mockMvc.perform(post("/api/v1/internal/categories")
+        mockMvc.perform(post("/api/v1/admin/categories")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(cosmicCategoryDto)))
                 .andExpect(status().isCreated())
@@ -110,7 +110,7 @@ class CategoryControllerTest {
         Mockito.when(categoryService.updateCategory(Mockito.eq(categoryUUID), Mockito.any(CategoryDto.class)))
                 .thenReturn(updatedCategoryDto);
 
-        mockMvc.perform(put("/api/v1/internal/categories/{id}", categoryUUID)
+        mockMvc.perform(put("/api/v1/admin/categories/{id}", categoryUUID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedCategoryDto)))
                 .andExpect(status().isOk())
@@ -122,7 +122,7 @@ class CategoryControllerTest {
     void deleteCategory_withValidId_shouldReturn204() {
         Mockito.doNothing().when(categoryService).deleteCategory(categoryUUID);
 
-        mockMvc.perform(delete("/api/v1/internal/categories/{id}", categoryUUID))
+        mockMvc.perform(delete("/api/v1/admin/categories/{id}", categoryUUID))
                 .andExpect(status().isNoContent());
     }
 
@@ -132,7 +132,7 @@ class CategoryControllerTest {
         UUID randUUID = UUID.randomUUID();
         Mockito.doNothing().when(categoryService).deleteCategory(randUUID);
 
-        mockMvc.perform(delete(String.format("/api/v1/internal/categories/%s", randUUID)))
+        mockMvc.perform(delete(String.format("/api/v1/admin/categories/%s", randUUID)))
                 .andExpect(status().isNoContent());
     }
 }

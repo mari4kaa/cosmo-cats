@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Validated
-@RequestMapping("/api/v1/internal/products")
+@RequestMapping("/api/v1/admin/products")
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {
