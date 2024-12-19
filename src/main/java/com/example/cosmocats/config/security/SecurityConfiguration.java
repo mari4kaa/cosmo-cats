@@ -26,7 +26,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 public class SecurityConfiguration {
 
     private static final String API_V_1_GENERAL = "/api/v1/internal/**";
-    private static final String API_V_1_CATS = "/api/v1/admin/**";
+    private static final String API_V_1_ADMIN = "/api/v1/admin/**";
 
     @Bean
     @Order(1)
@@ -44,18 +44,18 @@ public class SecurityConfiguration {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain filterChainCatsV1(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChainAdminV1(HttpSecurity http) throws Exception {
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new AuthorityConverter());
 
 
-        http.securityMatcher(API_V_1_CATS)
+        http.securityMatcher(API_V_1_ADMIN)
             .cors(withDefaults())
             .csrf(csrf -> csrf.csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()).csrfTokenRepository(withHttpOnlyFalse()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize ->
-                authorize.requestMatchers(antMatcher(API_V_1_CATS)).authenticated())
+                authorize.requestMatchers(antMatcher(API_V_1_ADMIN)).authenticated())
             .oauth2ResourceServer(oAuth2 ->
                 oAuth2.bearerTokenResolver(new HeaderBearerTokenResolver(ROLE_CLAIMS_HEADER))
                     .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));

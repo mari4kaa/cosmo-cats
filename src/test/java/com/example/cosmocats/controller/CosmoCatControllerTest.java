@@ -68,7 +68,7 @@ class CosmoCatControllerTest {
 
         when(cosmoCatService.getAllCatsInfos()).thenReturn(catInfos);
 
-        mockMvc.perform(get("/api/v1/admin/cosmo-cats")
+        mockMvc.perform(get("/api/v1/cosmo-cats")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3))
@@ -83,7 +83,7 @@ class CosmoCatControllerTest {
         when(featureToggleService.isFeatureEnabled(FeatureToggles.COSMO_CATS.getFeatureName()))
                 .thenReturn(false);
 
-        mockMvc.perform(get("/api/v1/admin/cosmo-cats")
+        mockMvc.perform(get("/api/v1/cosmo-cats")
                        .contentType(MediaType.APPLICATION_JSON))
                .andExpect(status().isNotFound());
     }

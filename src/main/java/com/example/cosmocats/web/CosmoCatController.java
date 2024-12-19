@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
-@RequestMapping("/api/v1/admin/cosmo-cats")
+@RequestMapping("/api/v1/cosmo-cats")
 public class CosmoCatController {
     private final CosmoCatService cosmoCatService;
     private final CatInfoMapper catInfoMapper = CatInfoMapper.getInstance();
