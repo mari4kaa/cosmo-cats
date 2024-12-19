@@ -3,7 +3,6 @@ package com.example.cosmocats.web;
 import com.example.cosmocats.dto.order.OrderDto;
 import com.example.cosmocats.projection.ProductReport;
 import com.example.cosmocats.service.OrderService;
-import com.example.cosmocats.service.exception.*;
 import com.example.cosmocats.service.exception.order.OrderCreationException;
 import com.example.cosmocats.service.exception.order.OrderDeletionException;
 import com.example.cosmocats.service.exception.order.OrderUpdateException;
@@ -12,6 +11,7 @@ import com.example.cosmocats.web.exception.OrderNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequestMapping("/api/v1/internal/orders")
 @Slf4j
 public class OrderController {
 
@@ -29,6 +29,7 @@ public class OrderController {
             this.orderService = orderService;
         }
     
+        @PreAuthorize("hasRole('BASIC_CAT')")
         @PostMapping
         public ResponseEntity<OrderDto> createOrder(@RequestBody @Valid OrderDto orderDto) {
             log.info("Creating order with ID");
@@ -41,6 +42,7 @@ public class OrderController {
             }
         }
     
+        @PreAuthorize("hasRole('BASIC_CAT')")
         @GetMapping
         public ResponseEntity<List<OrderDto>> getAllOrders() {
             log.info("Fetching all orders");
@@ -48,12 +50,14 @@ public class OrderController {
             return ResponseEntity.ok(orders);
         }
 
+        @PreAuthorize("hasRole('BASIC_CAT')")
         @GetMapping("/most-frequent-order-entries")
         public ResponseEntity<List<ProductReport>> getMostFrequentProducts() {
             List<ProductReport> reports = orderService.findMostFrequentOrderEntries();
             return ResponseEntity.ok(reports);
         }
 
+        @PreAuthorize("hasRole('BASIC_CAT')")
         @GetMapping("/by-card/{bankCardId}")
         public ResponseEntity<List<OrderDto>> getAllOrdersByBankCardId(@PathVariable String bankCardId) {
             log.info("Fetching all orders");
@@ -61,6 +65,7 @@ public class OrderController {
             return ResponseEntity.ok(orders);
         }
     
+        @PreAuthorize("hasRole('BASIC_CAT')")
         @GetMapping("/{orderId}")
         public ResponseEntity<OrderDto> getOrderById(@PathVariable UUID orderId) {
             log.info("Fetching order with ID '{}'", orderId);
@@ -69,6 +74,7 @@ public class OrderController {
                     .orElseThrow(() -> new OrderNotFoundException("Order not found."));
         }
 
+        @PreAuthorize("hasRole('BASIC_CAT')")
         @PutMapping("/{orderId}")
         public ResponseEntity<OrderDto> updateOrder(
                 @PathVariable UUID orderId,
@@ -84,6 +90,7 @@ public class OrderController {
             }
         }
 
+        @PreAuthorize("hasRole('BASIC_CAT')")
         @DeleteMapping("/{orderId}")
         public ResponseEntity<Void> deleteOrder(@PathVariable UUID orderId) {
             log.info("Deleting order with ID '{}'", orderId);

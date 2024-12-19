@@ -12,6 +12,8 @@ import com.example.cosmocats.service.exception.order.OrderUpdateException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -212,5 +214,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FeatureNotAvailableException.class)
     public ResponseEntity<String> handleFeatureNotAvailable(FeatureNotAvailableException ex) {
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<Object> handleAuthorizationDeniedException(AuthorizationDeniedException ex, WebRequest request) {
+
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        error.setTitle("Forbidden");
+        error.setDetail("Access Denied");
+        error.setInstance(URI.create(request.getDescription(false)));
+        
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(AuthenticationCredentialsNotFoundException.class)
+    public ResponseEntity<Object> handleAuthenticationException(AuthenticationCredentialsNotFoundException ex, WebRequest request) {
+        ProblemDetail error = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        error.setTitle("Authentication required");
+        error.setDetail("No authentication credentials were found");
+        error.setInstance(URI.create(request.getDescription(false)));
+        
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 }
