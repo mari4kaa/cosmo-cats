@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,9 +42,8 @@ import java.util.UUID;
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-class ProductControllerIntegrationTest {
+class ProductControllerIT {
 
-        @SuppressWarnings("resource")
         static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
         .withDatabaseName("testdb")
         .withUsername("testuser")
@@ -106,6 +106,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testCreateProductValid() {
         ProductDto validProduct = ProductDto.builder()
@@ -116,7 +117,7 @@ class ProductControllerIntegrationTest {
                 .price(9.99f)
                 .build();
 
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/admin/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validProduct)))
                 .andExpect(status().isCreated())
@@ -125,6 +126,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testCreateProductInvalidName() {
         ProductDto invalidProduct = ProductDto.builder()
@@ -135,7 +137,7 @@ class ProductControllerIntegrationTest {
                 .price(9.99f)
                 .build();
 
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/admin/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
@@ -148,6 +150,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testCreateProductInvalidOrigin() {
         ProductDto invalidProduct = ProductDto.builder()
@@ -158,7 +161,7 @@ class ProductControllerIntegrationTest {
                 .price(9.99f)
                 .build();
 
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/admin/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
@@ -167,10 +170,11 @@ class ProductControllerIntegrationTest {
                 .andExpect(jsonPath("$.detail")
                         .value("Validation failed: origin: String should contain at least one of next words: "
                                 + String.join(", ", CosmicOrigins.getValues())))
-                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
+                .andExpect(jsonPath("$.instance").value("uri=/api/v1/admin/products"));
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testCreateProductNegativePrice() {
         ProductDto invalidProduct = ProductDto.builder()
@@ -181,16 +185,17 @@ class ProductControllerIntegrationTest {
                 .price(-10.0f) // negative price
                 .build();
 
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/admin/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidProduct)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.detail").exists())
                 .andExpect(jsonPath("$.detail").value("Validation failed: price: Price cannot be negative"))
-                .andExpect(jsonPath("$.instance").value("uri=/api/v1/products"));
+                .andExpect(jsonPath("$.instance").value("uri=/api/v1/admin/products"));
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testCreateProductWithDuplicateName() {
         ProductDto productDto = ProductDto.builder()
@@ -204,7 +209,7 @@ class ProductControllerIntegrationTest {
         ProductEntity productEntity = productMapper.dtoToEntity(productDto);
         productRepository.save(productEntity);
 
-        mockMvc.perform(post("/api/v1/products")
+        mockMvc.perform(post("/api/v1/admin/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(productDto)))
         .andExpect(status().isBadRequest())
@@ -215,6 +220,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetAllProducts() {
         ProductEntity product1 = productRepository.save(ProductEntity.builder()
@@ -232,7 +238,7 @@ class ProductControllerIntegrationTest {
                 .price(12.99f)
                 .build());
 
-        mockMvc.perform(get("/api/v1/products")
+        mockMvc.perform(get("/api/v1/admin/products")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2)) // Validate two products returned
@@ -241,6 +247,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetProductById() {
         ProductEntity product = productRepository.save(ProductEntity.builder()
@@ -253,7 +260,7 @@ class ProductControllerIntegrationTest {
 
         ProductDto productDto = productMapper.entityToDto(product);
 
-        mockMvc.perform(get("/api/v1/products/{id}", productDto.getId())
+        mockMvc.perform(get("/api/v1/admin/products/{id}", productDto.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(product.getName()))
@@ -263,11 +270,12 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetProductByIdNotFound() {
         UUID invalidId = UUID.randomUUID();
 
-        mockMvc.perform(get("/api/v1/products/{id}", invalidId)
+        mockMvc.perform(get("/api/v1/admin/products/{id}", invalidId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
@@ -275,6 +283,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testUpdateProduct() {
         ProductEntity existingProduct = productRepository.save(ProductEntity.builder()
@@ -295,7 +304,7 @@ class ProductControllerIntegrationTest {
                 .price(19.99f)
                 .build();
 
-        mockMvc.perform(put("/api/v1/products/{id}", productDto.getId())
+        mockMvc.perform(put("/api/v1/admin/products/{id}", productDto.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedProductDto)))
                 .andExpect(status().isOk())
@@ -306,6 +315,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testUpdateProductNotFound() {
         UUID invalidId = UUID.randomUUID();
@@ -317,7 +327,7 @@ class ProductControllerIntegrationTest {
                 .price(19.99f)
                 .build();
 
-        mockMvc.perform(put("/api/v1/products/{id}", invalidId)
+        mockMvc.perform(put("/api/v1/admin/products/{id}", invalidId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedProductDto)))
                 .andExpect(status().isNotFound())
@@ -326,6 +336,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "IMPORTANT_CAT")
     @SneakyThrows
     void testDeleteProduct() {
         ProductEntity product = productRepository.save(ProductEntity.builder()
@@ -338,7 +349,7 @@ class ProductControllerIntegrationTest {
 
         ProductDto productDto = productMapper.entityToDto(product);
 
-        mockMvc.perform(delete("/api/v1/products/{id}", productDto.getId()))
+        mockMvc.perform(delete("/api/v1/admin/products/{id}", productDto.getId()))
                 .andExpect(status().isNoContent());
 
         assertFalse(productRepository.findById(product.getId()).isPresent());
@@ -346,11 +357,29 @@ class ProductControllerIntegrationTest {
 
     @Test
     @SneakyThrows
-    void testDeleteProductNotFound() {
-        UUID invalidId = UUID.randomUUID();
+    void testAccessWithoutAuthenticationCredentials() {
+        mockMvc.perform(get("/api/v1/admin/products"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title").value("Authentication required"))
+                .andExpect(jsonPath("$.detail").value("No authentication credentials were found"));
+    }
 
-        mockMvc.perform(delete("/api/v1/products/{id}", invalidId))
-                .andExpect(status().isNoContent());
+    @Test
+    @WithMockUser(roles = "WRONG_ROLE")
+    @SneakyThrows
+    void testAccessWithIncorrectRole() {
+        mockMvc.perform(get("/api/v1/admin/products"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.detail").value("Access Denied"));
+    }
+
+    @Test
+    @WithMockUser(roles = "BASIC_CAT")
+    @SneakyThrows
+    void testAccessWithCorrectRole() {
+        mockMvc.perform(get("/api/v1/admin/products"))
+                .andExpect(status().isOk());
     }
 
 }

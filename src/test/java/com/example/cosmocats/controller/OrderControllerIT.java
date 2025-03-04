@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,9 +45,8 @@ import static org.hamcrest.Matchers.*;
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-class OrderControllerIntegrationTest {
+class OrderControllerIT {
 
-    @SuppressWarnings("resource")
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
             .withDatabaseName("testdb")
             .withUsername("testuser")
@@ -110,8 +110,8 @@ class OrderControllerIntegrationTest {
         categoryRepository.deleteAll();
 
         CategoryEntity categoryEntity = categoryRepository.save(CategoryEntity.builder()
-            .name("Mock Category")
-            .build());
+                .name("Mock Category")
+                .build());
 
         product1 = productRepository.save(ProductEntity.builder()
                 .category(categoryEntity)
@@ -136,6 +136,7 @@ class OrderControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testCreateOrder() {
         OrderDto orderDto = OrderDto.builder()
@@ -149,19 +150,19 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
-        mockMvc.perform(post("/api/v1/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(orderDto)))
+        mockMvc.perform(post("/api/v1/internal/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(orderDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.bankCardId").value("4111-1111-1111-1111"))
                 .andExpect(jsonPath("$.price").value(49.98f));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testCreateOrderInvalidPrice() {
         OrderDto orderDto = OrderDto.builder()
@@ -175,18 +176,19 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
-        mockMvc.perform(post("/api/v1/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(orderDto)))
+        mockMvc.perform(post("/api/v1/internal/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(orderDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("Validation failed: price: Price cannot be negative"));
+                .andExpect(jsonPath("$.detail")
+                        .value("Validation failed: price: Price cannot be negative"));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetOrderById() {
 
@@ -201,35 +203,37 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
-        
+
         OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
 
-        mockMvc.perform(get("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId())))
+        mockMvc.perform(get("/api/v1/internal/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.bankCardId").value("4111-1111-1111-1111"))
                 .andExpect(jsonPath("$.price").value(49.98f));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetOrderNotFound() {
-        mockMvc.perform(get("/api/v1/orders/{id}", UUID.randomUUID()))
+        mockMvc.perform(get("/api/v1/internal/orders/{id}", UUID.randomUUID()))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetAllOrdersEmpty() {
-        mockMvc.perform(get("/api/v1/orders")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/internal/orders")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetAllOrdersByBankCardId() {
 
@@ -244,8 +248,7 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         OrderDto orderDto2 = OrderDto.builder()
@@ -255,8 +258,7 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         OrderEntity orderEntity1 = orderRepository.save(orderMapper.dtoToEntity(orderDto1));
@@ -265,14 +267,17 @@ class OrderControllerIntegrationTest {
         UUID expectedId1 = orderMapper.longToUuid(orderEntity1.getId());
         UUID expectedId2 = orderMapper.longToUuid(orderEntity2.getId());
 
-        mockMvc.perform(get("/api/v1/orders/by-card/{bankCardId}", orderEntity1.getBankCardId()))
+        mockMvc.perform(get("/api/v1/internal/orders/by-card/{bankCardId}", orderEntity1.getBankCardId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))))
-                .andExpect(jsonPath("$[1].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))));
+                .andExpect(jsonPath("$[0].id",
+                        anyOf(is(expectedId1.toString()), is(expectedId2.toString()))))
+                .andExpect(jsonPath("$[1].id",
+                        anyOf(is(expectedId1.toString()), is(expectedId2.toString()))));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetAllOrders() {
 
@@ -287,8 +292,7 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         OrderDto orderDto2 = OrderDto.builder()
@@ -298,8 +302,7 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         OrderEntity orderEntity1 = orderRepository.save(orderMapper.dtoToEntity(orderDto1));
@@ -308,15 +311,18 @@ class OrderControllerIntegrationTest {
         UUID expectedId1 = orderMapper.longToUuid(orderEntity1.getId());
         UUID expectedId2 = orderMapper.longToUuid(orderEntity2.getId());
 
-        mockMvc.perform(get("/api/v1/orders")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/internal/orders")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))))
-                .andExpect(jsonPath("$[1].id", anyOf(is(expectedId1.toString()), is(expectedId2.toString()))));
+                .andExpect(jsonPath("$[0].id",
+                        anyOf(is(expectedId1.toString()), is(expectedId2.toString()))))
+                .andExpect(jsonPath("$[1].id",
+                        anyOf(is(expectedId1.toString()), is(expectedId2.toString()))));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testUpdateOrder() {
         OrderDto existingOrderDto = OrderDto.builder()
@@ -330,10 +336,9 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
-        
+
         OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
 
         OrderDto updatedOrderDto = OrderDto.builder()
@@ -343,18 +348,18 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
-        mockMvc.perform(put("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedOrderDto)))
+        mockMvc.perform(put("/api/v1/internal/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.price").value(29.99f));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testUpdateOrderChangeCard() {
         OrderDto existingOrderDto = OrderDto.builder()
@@ -368,10 +373,9 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
-        
+
         OrderEntity existingOrderEntity = orderRepository.save(orderMapper.dtoToEntity(existingOrderDto));
 
         OrderDto updatedOrderDto = OrderDto.builder()
@@ -381,18 +385,19 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
-        mockMvc.perform(put("/api/v1/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedOrderDto)))
+        mockMvc.perform(put("/api/v1/internal/orders/{id}", orderMapper.longToUuid(existingOrderEntity.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.detail").value("Update failed: The bank card ID cannot be changed in the order"));
+                .andExpect(jsonPath("$.detail").value(
+                        "Update failed: The bank card ID cannot be changed in the order"));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testUpdateOrderNotFound() {
         OrderDto updatedOrderDto = OrderDto.builder()
@@ -402,17 +407,17 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(2)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
-        mockMvc.perform(put("/api/v1/orders/{id}", UUID.randomUUID())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedOrderDto)))
+        mockMvc.perform(put("/api/v1/internal/orders/{id}", UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedOrderDto)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testDeleteOrder() {
         OrderDto orderDto = OrderDto.builder()
@@ -426,26 +431,27 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
-        
+
         OrderEntity orderEntity = orderRepository.save(orderMapper.dtoToEntity(orderDto));
 
-        mockMvc.perform(delete("/api/v1/orders/{id}", orderMapper.longToUuid(orderEntity.getId())))
+        mockMvc.perform(delete("/api/v1/internal/orders/{id}", orderMapper.longToUuid(orderEntity.getId())))
                 .andExpect(status().isNoContent());
 
         assertFalse(orderRepository.existsById(orderEntity.getId()));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testDeleteOrderNotFound() {
-        mockMvc.perform(delete("/api/v1/orders/{id}", UUID.randomUUID()))
+        mockMvc.perform(delete("/api/v1/internal/orders/{id}", UUID.randomUUID()))
                 .andExpect(status().isNoContent());
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetMostFrequentProducts() {
 
@@ -460,8 +466,7 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         OrderDto orderDto2 = OrderDto.builder()
@@ -471,8 +476,7 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         OrderDto orderDto3 = OrderDto.builder()
@@ -486,33 +490,40 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product3.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         orderRepository.save(orderMapper.dtoToEntity(orderDto1));
         orderRepository.save(orderMapper.dtoToEntity(orderDto2));
         orderRepository.save(orderMapper.dtoToEntity(orderDto3));
 
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3)) // Expect all three products
-                .andExpect(jsonPath("$[0].productName").value(product1.getName())) // Product1 should be the most frequent
-                .andExpect(jsonPath("$[1].productName", anyOf(is(product2.getName()), is(product3.getName())))) // Product2 and Product3 in subsequent places
-                .andExpect(jsonPath("$[2].productName", anyOf(is(product2.getName()), is(product3.getName()))));
+                .andExpect(jsonPath("$[0].productName").value(product1.getName())) // Product1 should be
+                                                                                   // the most frequent
+                .andExpect(jsonPath("$[1].productName",
+                        anyOf(is(product2.getName()), is(product3.getName())))) // Product2 and
+                                                                                // Product3 in
+                                                                                // subsequent
+                                                                                // places
+                .andExpect(jsonPath("$[2].productName",
+                        anyOf(is(product2.getName()), is(product3.getName()))));
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetMostFrequentProductsNoOrders() {
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0)); // No orders, so no products returned
     }
 
     @Test
+    @WithMockUser(roles = "BASIC_CAT")
     @SneakyThrows
     void testGetMostFrequentProductsTie() {
         // orders with tied frequency
@@ -527,8 +538,7 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product2.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         OrderDto orderDto2 = OrderDto.builder()
@@ -538,18 +548,46 @@ class OrderControllerIntegrationTest {
                         OrderEntryDto.builder()
                                 .productId(productMapper.longToUuid(product1.getId()))
                                 .quantity(1)
-                                .build()
-                ))
+                                .build()))
                 .build();
 
         orderRepository.save(orderMapper.dtoToEntity(orderDto1));
         orderRepository.save(orderMapper.dtoToEntity(orderDto2));
 
-        mockMvc.perform(get("/api/v1/orders/most-frequent-order-entries")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/internal/orders/most-frequent-order-entries")
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2)) // Expect two products
-                .andExpect(jsonPath("$[0].productName").value(product1.getName())) // Either product1 or product2 can be first
+                .andExpect(jsonPath("$[0].productName").value(product1.getName())) // Either product1 or
+                                                                                   // product2 can be
+                                                                                   // first
                 .andExpect(jsonPath("$[1].productName").value(product2.getName()));
+    }
+
+    @Test
+    @SneakyThrows
+    void testAccessWithoutAuthenticationCredentials() {
+        mockMvc.perform(get("/api/v1/internal/orders"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.title").value("Authentication required"))
+                .andExpect(jsonPath("$.detail").value("No authentication credentials were found"));
+    }
+
+    @Test
+    @WithMockUser(roles = "WRONG_ROLE")
+    @SneakyThrows
+    void testAccessWithIncorrectRole() {
+        mockMvc.perform(get("/api/v1/internal/orders"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.title").value("Forbidden"))
+                .andExpect(jsonPath("$.detail").value("Access Denied"));
+    }
+
+    @Test
+    @WithMockUser(roles = "BASIC_CAT")
+    @SneakyThrows
+    void testAccessWithCorrectRole() {
+        mockMvc.perform(get("/api/v1/internal/orders"))
+                .andExpect(status().isOk());
     }
 }
